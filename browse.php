@@ -186,7 +186,6 @@ if ($result->num_rows == 0) {
 
 // Close the statement and connection
 $stmt->close();
-closeConnection($conn);
 ?>
 
 </ul>
@@ -254,7 +253,6 @@ closeConnection($conn);
 
 
 </div>
-
 
 
 <?php include_once("footer.php")?>
