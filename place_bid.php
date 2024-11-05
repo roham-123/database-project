@@ -17,17 +17,19 @@ $userID = $_SESSION['UserID'];
 
 // Validate bid amount
 if (!is_numeric($bidAmount) || $bidAmount <= 0) {
-    die("Invalid bid amount.");
+    echo "Invalid bid amount.";
+    exit();
 }
 
-// Fetch the current highest bid and auction details
+// Fetch the current auction details
 $stmt = $conn->prepare("SELECT StartPrice, EndDate FROM Auction WHERE AuctionID = ?");
 $stmt->bind_param("i", $auctionID);
 $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows === 0) {
-    die("Auction not found.");
+    echo "Auction not found.";
+    exit();
 }
 
 $auction = $result->fetch_assoc();
@@ -36,7 +38,8 @@ $endDate = new DateTime($auction['EndDate']);
 $now = new DateTime();
 
 if ($now > $endDate) {
-    die("The auction has already ended.");
+    echo "The auction has already ended.";
+    exit();
 }
 
 // Fetch the highest bid for this auction
@@ -50,7 +53,8 @@ $highestBid = $highestBidRow['HighestBid'] ?? $startPrice;
 
 // Ensure bid amount is higher than the current highest bid
 if ($bidAmount <= $highestBid) {
-    die("Your bid must be higher than the current highest bid of £" . number_format($highestBid, 2));
+    echo "Your bid must be higher than the current highest bid of £" . number_format($highestBid, 2);
+    exit();
 }
 
 // Insert the new bid into the Bid table
@@ -60,13 +64,12 @@ $stmt->bind_param("iid", $auctionID, $userID, $bidAmount);
 if ($stmt->execute()) {
     echo "Bid placed successfully! <a href='auction_details.php?auctionID=$auctionID'>Go back to auction</a>";
     
-    // Optionally, send a notification to the seller
-    // You can implement notification logic here
-
+    // Optional: Implement notification logic for the seller if required.
 } else {
     echo "Error: " . $stmt->error;
 }
 
+// Close statement and connection
 $stmt->close();
 closeConnection($conn);
 ?>
