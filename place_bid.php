@@ -57,8 +57,8 @@ if ($bidAmount <= $highestBid) {
     exit();
 }
 
-// Insert the new bid into the Bid table
-$stmt = $conn->prepare("INSERT INTO Bid (AuctionID, UserID, BidAmount, BidLength) VALUES (?, ?, ?, 0)");
+// Insert the new bid into the Bid table with the current timestamp
+$stmt = $conn->prepare("INSERT INTO Bid (AuctionID, UserID, BidAmount, BidTime) VALUES (?, ?, ?, NOW())");
 $stmt->bind_param("iid", $auctionID, $userID, $bidAmount);
 
 if ($stmt->execute()) {
