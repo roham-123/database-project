@@ -29,7 +29,7 @@ $stmt->bind_param("ssss", $name, $email, $hashedPassword, $accountType);
 
 // Execute the query and check if it was successful
 if ($stmt->execute()) {
-    echo "Registration successful. You can now <a href=\"index.php\" data-toggle=\"modal\" data-target=\"#loginModal\">log in</a>.";
+    echo " Registration successful. You can now <a href=\"index.php\" data-toggle=\"modal\" data-target=\"#loginModal\">log in</a>.";
 } else {
     echo "Error: " . $stmt->error;
 }
