@@ -30,10 +30,10 @@ if ($result->num_rows > 0) {
         header("Location: index.php");
         exit();
     } else {
-        echo "Incorrect password. Please try again.";
+        echo " Incorrect password. Please try again.";
     }
 } else {
-    echo "No account found with that email address. Please register first.";
+    echo " No account found with that email address. Please register first.";
 }
 
 // Close the statement and connection
