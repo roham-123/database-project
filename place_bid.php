@@ -1,5 +1,7 @@
 <?php
 include_once("utilities.php");
+include_once("notification_functions.php");
+
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
@@ -26,7 +28,6 @@ $stmt = $conn->prepare("SELECT StartPrice, EndDate FROM Auction WHERE AuctionID 
 $stmt->bind_param("i", $auctionID);
 $stmt->execute();
 $result = $stmt->get_result();
-
 if ($result->num_rows === 0) {
     echo "Auction not found.";
     exit();
@@ -48,7 +49,6 @@ $stmt->bind_param("i", $auctionID);
 $stmt->execute();
 $result = $stmt->get_result();
 $highestBidRow = $result->fetch_assoc();
-
 $highestBid = $highestBidRow['HighestBid'] ?? $startPrice;
 
 // Ensure bid amount is higher than the current highest bid
@@ -62,9 +62,18 @@ $stmt = $conn->prepare("INSERT INTO Bid (AuctionID, UserID, BidAmount, BidTime) 
 $stmt->bind_param("iid", $auctionID, $userID, $bidAmount);
 
 if ($stmt->execute()) {
+    // Get the previous highest bidder
+    $stmt = $conn->prepare("SELECT UserID FROM Bid 
+                           WHERE AuctionID = ? AND UserID != ? 
+                           ORDER BY BidAmount DESC LIMIT 1");
+    $stmt->bind_param("ii", $auctionID, $userID);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($previousBidder = $result->fetch_assoc()) {
+        createNotification($conn, $previousBidder['UserID'], $auctionID, 
+            "You have been outbid! New highest bid is £" . number_format($bidAmount, 2), 'outbid');
+    }
     echo "Bid placed successfully! <a href='auction_details.php?auctionID=$auctionID'>Go back to auction</a>";
-    
-    // Optional: Implement notification logic for the seller if required.
 } else {
     echo "Error: " . $stmt->error;
 }
