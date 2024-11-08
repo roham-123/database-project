@@ -1,3 +1,4 @@
+
 <?php include_once("header.php")?>
 <?php require("utilities.php")?>
 
@@ -5,6 +6,9 @@
 if (session_status() == PHP_SESSION_NONE) {
   session_start();
 }
+
+var_dump($_SESSION);
+
 if (isset($_SESSION['UserID'])) {
     echo "Logged in as: " . $_SESSION['Name'] . " (Role: " . $_SESSION['Role'] . ")";
 } else {
