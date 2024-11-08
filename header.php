@@ -4,6 +4,12 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 ?>
 
+<?php
+// Add error reporting at the top of header.php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+?>
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -22,10 +28,63 @@ if (session_status() == PHP_SESSION_NONE) {
 
 <body>
 
-<!-- Navbars -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light mx-2">
   <a class="navbar-brand" href="#">Site Name <!--CHANGEME!--></a>
   <ul class="navbar-nav ml-auto">
+    <?php 
+    try {
+        if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true && isset($_SESSION['UserID'])) {
+            $notifications = [];
+            $notificationCount = 0;
+            
+            // Debug output
+            echo "<!-- Debug: User is logged in as UserID: " . $_SESSION['UserID'] . " -->";
+            
+            if (file_exists("notification_functions.php")) {
+                require_once("notification_functions.php");
+                if (isset($conn)) {
+                    $notifications = getUnreadNotifications($conn, $_SESSION['UserID']);
+                    $notificationCount = count($notifications);
+                } else {
+                    echo "<!-- Debug: Database connection not available -->";
+                }
+            } else {
+                echo "<!-- Debug: notification_functions.php not found -->";
+            }
+    ?>
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" 
+               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-bell"></i>
+                <?php if ($notificationCount > 0): ?>
+                    <span class="badge badge-danger"><?php echo $notificationCount; ?></span>
+                <?php endif; ?>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationDropdown" style="max-width: 300px;">
+                <?php if ($notificationCount > 0): ?>
+                    <?php foreach ($notifications as $notification): ?>
+                        <a class="dropdown-item notification-item" 
+                           href="auction_details.php?auctionID=<?php echo $notification['AuctionID']; ?>"
+                           data-notification-id="<?php echo $notification['NotificationID']; ?>">
+                            <small class="text-muted">
+                                <?php echo date('M j, g:i a', strtotime($notification['NotificationTime'])); ?>
+                            </small><br>
+                            <?php echo htmlspecialchars($notification['Message']); ?>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <span class="dropdown-item-text">No new notifications</span>
+                <?php endif; ?>
+            </div>
+        </li>
+    <?php
+        }
+    } catch (Exception $e) {
+        error_log("Error in header.php: " . $e->getMessage());
+        echo "<!-- Debug: Error occurred: " . htmlspecialchars($e->getMessage()) . " -->";
+    }
+    ?>
     <li class="nav-item">
       <?php
       // Displays either login or logout on the right, depending on user's current status (session).
@@ -33,43 +92,10 @@ if (session_status() == PHP_SESSION_NONE) {
           echo '<a class="nav-link" href="logout.php">Logout</a>';
       } else {
           echo '<button type="button" class="btn nav-link" data-toggle="modal" data-target="#loginModal">Login</button>';
-          // Add Register button when user is not logged in
           echo '<a href="register.php" class="btn btn-primary ml-2">Register</a>';
       }
       ?>
     </li>
-  </ul>
-</nav>
-
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <ul class="navbar-nav align-middle">
-    <li class="nav-item mx-1">
-      <a class="nav-link" href="browse.php">Browse</a>
-    </li>
-    <?php
-    // Updated to use consistent session variable for role
-    if (isset($_SESSION['Role']) && $_SESSION['Role'] == 'buyer') {
-      echo('
-      <li class="nav-item mx-1">
-        <a class="nav-link" href="mybids.php">My Bids</a>
-      </li>
-      <li class="nav-item mx-1">
-        <a class="nav-link" href="watchlist.php">My Watchlist</a>
-      </li>
-      <li class="nav-item mx-1">
-        <a class="nav-link" href="recommendations.php">Recommended</a>
-      </li>');
-    }
-    if (isset($_SESSION['Role']) && $_SESSION['Role'] == 'seller') {
-      echo('
-      <li class="nav-item mx-1">
-        <a class="nav-link" href="mylistings.php">My Listings</a>
-      </li>
-      <li class="nav-item ml-3">
-        <a class="nav-link btn border-light" href="create_auction.php">+ Create auction</a>
-      </li>');
-    }
-    ?>
   </ul>
 </nav>
 
@@ -99,3 +125,15 @@ if (session_status() == PHP_SESSION_NONE) {
     </div>
   </div>
 </div> <!-- End modal -->
+
+<script>
+$(document).ready(function() {
+    // Mark notifications as read when clicked
+    $('.notification-item').click(function() {
+        var notificationId = $(this).data('notification-id');
+        $.post('mark_notification_read.php', {
+            notification_id: notificationId
+        });
+    });
+});
+</script>
