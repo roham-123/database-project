@@ -50,11 +50,25 @@ CREATE TABLE `Notification` (
     NotificationID int NOT NULL AUTO_INCREMENT PRIMARY KEY,
     AuctionID int NOT NULL,
     UserID int NOT NULL,
-    NotificationTime DATETIME,
+    NotificationTime DATETIME DEFAULT CURRENT_TIMESTAMP,
     NotificationType varchar(255),
+    Message TEXT,
+    IsRead BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (AuctionID) REFERENCES Auction(AuctionID),  
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );
+
+CREATE TABLE `NotificationPreferences` (
+    UserID INT PRIMARY KEY,
+    OutbidNotify BOOLEAN DEFAULT TRUE,
+    AuctionEndNotify BOOLEAN DEFAULT TRUE,
+    EmailNotifications BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID)
+);
+
+-- Insert default preferences for existing users
+INSERT INTO NotificationPreferences (UserID)
+SELECT UserID FROM Users;
 
 -- Insert sample categories
 INSERT INTO Category (CategoryName) VALUES ('Electronics'), ('Furniture'), ('Clothing'), ('Books'), ('Toys');
