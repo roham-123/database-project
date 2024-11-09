@@ -25,6 +25,7 @@ if ($result->num_rows > 0) {
         $_SESSION['Name'] = $user['Name'];
         $_SESSION['Role'] = $user['Role'];
         $_SESSION['logged_in'] = true;  // Set the logged_in session variable
+        $_SESSION['Email'] = $email;
 
         // Redirect to the homepage or dashboard
         header("Location: index.php");
