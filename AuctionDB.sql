@@ -40,7 +40,8 @@ CREATE TABLE `Auction` (
   `CategoryID` int(11) NOT NULL,
   `ReservePrice` float DEFAULT NULL,
   `StartPrice` float DEFAULT NULL,
-  `EndDate` datetime(255) DEFAULT NULL
+  `EndDate` datetime(6) DEFAULT NULL
+  'Views' int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --

@@ -7,7 +7,7 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 if (isset($_SESSION['UserID'])) {
-    echo "Logged in as: " . $_SESSION['Name'] . " (Role: " . $_SESSION['Role'] . ")";
+    echo "Logged in as: " . $_SESSION['Username'] . " (Role: " . $_SESSION['Role'] . ")";
 } else {
     echo "Not logged in.";
 }
