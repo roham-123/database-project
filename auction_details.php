@@ -14,9 +14,40 @@ if (!isset($_GET['auctionID'])) {
 
 $auctionID = $_GET['auctionID'];
 
-// Prepare a query to fetch auction details
+// Check if the user is logged in and track their views
+if (isset($_SESSION['UserID'])) {
+    $userID = $_SESSION['UserID'];
+
+    // Check if the user has already viewed this auction
+    $checkViewQuery = "SELECT * FROM UserViews WHERE UserID = ? AND AuctionID = ?";
+    $checkStmt = $conn->prepare($checkViewQuery);
+    $checkStmt->bind_param("ii", $userID, $auctionID);
+    $checkStmt->execute();
+    $viewResult = $checkStmt->get_result();
+
+    if ($viewResult->num_rows === 0) {
+        // User has not viewed this auction, so insert a new view record
+        $insertViewQuery = "INSERT INTO UserViews (UserID, AuctionID) VALUES (?, ?)";
+        $insertStmt = $conn->prepare($insertViewQuery);
+        $insertStmt->bind_param("ii", $userID, $auctionID);
+        $insertStmt->execute();
+
+        // Update the views count in the Auction table
+        $updateViewsQuery = "UPDATE Auction SET Views = Views + 1 WHERE AuctionID = ?";
+        $updateStmt = $conn->prepare($updateViewsQuery);
+        $updateStmt->bind_param("i", $auctionID);
+        $updateStmt->execute();
+
+        $insertStmt->close();
+        $updateStmt->close();
+    }
+
+    $checkStmt->close();
+}
+
+// Prepare a query to fetch auction details, including Views count
 $sql = "SELECT a.ItemName, a.Description, a.StartPrice, a.ReservePrice, a.EndDate, 
-               u.UserName AS SellerName, c.CategoryName 
+               u.UserName AS SellerName, c.CategoryName, a.Views 
         FROM Auction a
         JOIN Users u ON a.UserID = u.UserID
         JOIN Category c ON a.CategoryID = c.CategoryID
@@ -46,7 +77,7 @@ if ($result->num_rows === 0) {
     $endDate = new DateTime($auction['EndDate']);
     $timeRemaining = $now < $endDate ? $endDate->diff($now) : null;
 
-    // Display auction details
+    // Display auction details, including Views
     echo "<div class='container mt-5'>";
     echo "<div class='row'>";
     echo "<div class='col-md-8'>";
@@ -54,6 +85,7 @@ if ($result->num_rows === 0) {
     echo "<p><strong>Category:</strong> " . htmlspecialchars($auction['CategoryName']) . "</p>";
     echo "<p><strong>Seller:</strong> " . htmlspecialchars($auction['SellerName']) . "</p>";
     echo "<p><strong>Description:</strong><br>" . nl2br(htmlspecialchars($auction['Description'])) . "</p>";
+    echo "<p><strong>Views:</strong> " . htmlspecialchars($auction['Views']) . "</p>"; // Display the Views count
     echo "</div>";
     echo "<div class='col-md-4'>";
     echo "<div class='card mb-3'>";
