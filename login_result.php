@@ -9,7 +9,7 @@ $email = $_POST['email'];
 $password = $_POST['password'];
 
 // Prepare SQL query to fetch user with the provided email
-$stmt = $conn->prepare("SELECT UserID, Name, Password, Role FROM Users WHERE Email = ?");
+$stmt = $conn->prepare("SELECT UserID, Username, Name, Password, Role FROM Users WHERE Email = ?");
 $stmt->bind_param("s", $email);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -22,10 +22,12 @@ if ($result->num_rows > 0) {
     if (password_verify($password, $user['Password'])) {
         // Set session variables
         $_SESSION['UserID'] = $user['UserID'];
+        $_SESSION['Username'] = $user['Username'];
         $_SESSION['Name'] = $user['Name'];
         $_SESSION['Role'] = $user['Role'];
         $_SESSION['logged_in'] = true;  // Set the logged_in session variable
         $_SESSION['Email'] = $email;
+        
 
         // Redirect to the homepage or dashboard
         header("Location: index.php");

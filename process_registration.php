@@ -5,12 +5,12 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-
 // Get form data from POST request
 $accountType = $_POST['accountType'];
 $email = $_POST['email'];
 $password = $_POST['password'];
 $passwordConfirmation = $_POST['passwordConfirmation'];
+$username = $_POST['username']; // Get the username from the form
 
 // Check if the passwords match
 if ($password !== $passwordConfirmation) {
@@ -21,11 +21,10 @@ if ($password !== $passwordConfirmation) {
 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
 // Prepare SQL query to insert user data into the Users table
-$stmt = $conn->prepare("INSERT INTO Users (Name, Email, Password, Role) VALUES (?, ?, ?, ?)");
+$stmt = $conn->prepare("INSERT INTO Users (Name, Email, Password, Role, Username) VALUES (?, ?, ?, ?, ?)");
 
-// Default name is set to 'User' as there is no name field in the form
-$name = "User";
-$stmt->bind_param("ssss", $name, $email, $hashedPassword, $accountType);
+// Bind the parameters, using username for both Name and Username fields
+$stmt->bind_param("sssss", $username, $email, $hashedPassword, $accountType, $username);
 
 // Execute the query and check if it was successful
 if ($stmt->execute()) {

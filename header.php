@@ -28,8 +28,9 @@ if (session_status() == PHP_SESSION_NONE) {
   <ul class="navbar-nav ml-auto">
     <li class="nav-item">
       <?php
-      // Displays either login or logout on the right, depending on user's current status (session).
+      // Displays the username if logged in, otherwise shows login/register options.
       if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true) {
+          echo '<span class="navbar-text mr-3">Welcome, ' . htmlspecialchars($_SESSION['Username']) . '</span>';
           echo '<a class="nav-link" href="logout.php">Logout</a>';
       } else {
           echo '<button type="button" class="btn nav-link" data-toggle="modal" data-target="#loginModal">Login</button>';
