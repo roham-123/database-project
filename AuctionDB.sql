@@ -40,8 +40,9 @@ CREATE TABLE `Auction` (
   `CategoryID` int(11) NOT NULL,
   `ReservePrice` float DEFAULT NULL,
   `StartPrice` float DEFAULT NULL,
-  `EndDate` datetime(6) DEFAULT NULL
-  'Views' int(11) DEFAULT NULL
+  `EndDate` datetime(6) DEFAULT NULL,
+  `Views` int(11) DEFAULT 0,
+  `Image` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -126,6 +127,7 @@ CREATE TABLE `Notification` (
 
 CREATE TABLE `Users` (
   `UserID` int(11) NOT NULL,
+  `Username` varchar(255) DEFAULT NULL,
   `Email` varchar(255) DEFAULT NULL,
   `Password` varchar(255) DEFAULT NULL,
   `Role` varchar(255) DEFAULT NULL
@@ -135,7 +137,7 @@ CREATE TABLE `Users` (
 -- Dumping data for table `Users`
 --
 
-INSERT INTO `Users` (`UserID`, `Name`, `Email`, `Password`, `Role`) VALUES
+INSERT INTO `Users` (`UserID`, `Username`, `Email`, `Password`, `Role`) VALUES
 (1, 'User', 'roham@gmail.com', '$2y$10$dUDrdojrLX/sApW7agOo0.8uWTNeIq54/TmoshpyWJ8cDaHKoOhxq', 'buyer'),
 (2, 'User', 'rohamseller@gmail.com', '$2y$10$6.VT881PwQ0FazxiTQN8PuZg2Krbdc6/zc0wuE2/LpG83pP.zIaB6', 'seller');
 
@@ -280,8 +282,6 @@ ALTER TABLE `WatchList`
   ADD CONSTRAINT `watchlist_ibfk_2` FOREIGN KEY (`UserID`) REFERENCES `Users` (`UserID`);
 COMMIT;
 
-ALTER TABLE `Users`
-ADD `Username` varchar(255) NOT NULL AFTER `UserID`;
 
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
