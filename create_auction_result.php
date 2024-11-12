@@ -18,6 +18,32 @@ $startPrice = $_POST['startPrice'];
 $reservePrice = $_POST['reservePrice'];
 $endDate = $_POST['endDate'];
 $userID = $_SESSION['UserID'];
+$imagePath = null; // To store the path of the uploaded image
+
+// Handle file upload if a file is uploaded
+if (isset($_FILES['auctionPhoto']) && $_FILES['auctionPhoto']['error'] == UPLOAD_ERR_OK) {
+    // Set the target directory and unique filename
+    $targetDir = "uploads/";
+    $fileType = strtolower(pathinfo($_FILES["auctionPhoto"]["name"], PATHINFO_EXTENSION));
+    
+    // Allowed file types
+    $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'];
+    if (in_array($fileType, $allowedTypes)) {
+        $uniqueFileName = uniqid() . "." . $fileType;
+        $targetFile = $targetDir . $uniqueFileName;
+
+        // Attempt to move the uploaded file
+        if (move_uploaded_file($_FILES["auctionPhoto"]["tmp_name"], $targetFile)) {
+            $imagePath = $targetFile; // Save file path to store in the database
+        } else {
+            echo "Error uploading file.";
+            exit();
+        }
+    } else {
+        echo "Invalid file type. Only JPG, JPEG, PNG, and GIF files are allowed.";
+        exit();
+    }
+}
 
 // Fetch the CategoryID based on the category name
 $stmt = $conn->prepare("SELECT CategoryID FROM Category WHERE CategoryName = ?");
@@ -34,9 +60,9 @@ if ($result->num_rows > 0) {
 
 $stmt->close();
 
-// Prepare SQL query to insert auction data into the Auction table
-$stmt = $conn->prepare("INSERT INTO Auction (UserID, ItemName, Description, CategoryID, StartPrice, ReservePrice, EndDate) VALUES (?, ?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("issidds", $userID, $itemName, $description, $categoryID, $startPrice, $reservePrice, $endDate);
+// Prepare SQL query to insert auction data into the Auction table, including the image path
+$stmt = $conn->prepare("INSERT INTO Auction (UserID, ItemName, Description, CategoryID, StartPrice, ReservePrice, EndDate, Image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+$stmt->bind_param("issiddss", $userID, $itemName, $description, $categoryID, $startPrice, $reservePrice, $endDate, $imagePath);
 
 // Execute the query and check if it was successful
 if ($stmt->execute()) {
@@ -52,5 +78,4 @@ closeConnection($conn);
 
 </div>
 
-
-<?php include_once("footer.php")?>
+<?php include_once("footer.php") ?>

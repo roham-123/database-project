@@ -15,7 +15,7 @@ if (!isset($_GET['auctionID'])) {
 $auctionID = $_GET['auctionID'];
 
 // Prepare a query to fetch auction details
-$sql = "SELECT a.ItemName, a.Description, a.StartPrice, a.ReservePrice, a.EndDate, 
+$sql = "SELECT a.ItemName, a.Description, a.StartPrice, a.ReservePrice, a.EndDate, a.Image,
                u.UserName AS SellerName, c.CategoryName 
         FROM Auction a
         JOIN Users u ON a.UserID = u.UserID
@@ -51,6 +51,14 @@ if ($result->num_rows === 0) {
     echo "<div class='row'>";
     echo "<div class='col-md-8'>";
     echo "<h2>" . htmlspecialchars($auction['ItemName']) . "</h2>";
+
+    // Display the auction image if available
+    if (!empty($auction['Image'])) {
+        echo "<img src='" . htmlspecialchars($auction['Image']) . "' alt='Auction Image' class='img-fluid mb-3' />";
+    } else {
+        echo "<p><em>No image available for this auction.</em></p>";
+    }
+
     echo "<p><strong>Category:</strong> " . htmlspecialchars($auction['CategoryName']) . "</p>";
     echo "<p><strong>Seller:</strong> " . htmlspecialchars($auction['SellerName']) . "</p>";
     echo "<p><strong>Description:</strong><br>" . nl2br(htmlspecialchars($auction['Description'])) . "</p>";
