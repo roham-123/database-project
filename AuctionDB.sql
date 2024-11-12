@@ -125,7 +125,6 @@ CREATE TABLE `Notification` (
 
 CREATE TABLE `Users` (
   `UserID` int(11) NOT NULL,
-  `Name` varchar(255) DEFAULT NULL,
   `Email` varchar(255) DEFAULT NULL,
   `Password` varchar(255) DEFAULT NULL,
   `Role` varchar(255) DEFAULT NULL
