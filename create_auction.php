@@ -1,9 +1,8 @@
-<?php include_once("header.php")?>
+<?php include_once("header.php"); ?>
 
 <?php if (session_status() == PHP_SESSION_NONE) {
     session_start();
-}
-?>
+} ?>
 
 <?php
 echo "Role: " . (isset($_SESSION['Role']) ? $_SESSION['Role'] : 'not set') . "<br>";
@@ -25,7 +24,8 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSI
   <h2 class="my-3">Create new auction</h2>
   <div class="card">
     <div class="card-body">
-      <form method="post" action="create_auction_result.php">
+      <!-- Add enctype="multipart/form-data" to handle file uploads -->
+      <form method="post" action="create_auction_result.php" enctype="multipart/form-data">
         <div class="form-group row">
           <label for="auctionTitle" class="col-sm-2 col-form-label text-right">Title of auction</label>
           <div class="col-sm-10">
@@ -82,6 +82,14 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSI
             <small id="endDateHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> Day for the auction to end.</small>
           </div>
         </div>
+        <!-- New Photo Upload Field -->
+        <div class="form-group row">
+          <label for="auctionPhoto" class="col-sm-2 col-form-label text-right">Upload Photo</label>
+          <div class="col-sm-10">
+            <input type="file" class="form-control-file" id="auctionPhoto" name="auctionPhoto" accept="image/*">
+            <small id="photoHelp" class="form-text text-muted">Optional. Upload a photo of the item you're selling.</small>
+          </div>
+        </div>
         <button type="submit" class="btn btn-primary form-control">Create Auction</button>
       </form>
     </div>
@@ -90,6 +98,4 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSI
 
 </div>
 
-
-
-<?php include_once("footer.php")?>
+<?php include_once("footer.php"); ?>

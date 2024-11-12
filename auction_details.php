@@ -14,11 +14,10 @@ if (!isset($_GET['auctionID'])) {
 
 $auctionID = $_GET['auctionID'];
 
-// Check if the user is logged in and track their views
+// Track views if the user is logged in
 if (isset($_SESSION['UserID'])) {
     $userID = $_SESSION['UserID'];
-
-    // Check if the user has already viewed this auction
+    
     $checkViewQuery = "SELECT * FROM UserViews WHERE UserID = ? AND AuctionID = ?";
     $checkStmt = $conn->prepare($checkViewQuery);
     $checkStmt->bind_param("ii", $userID, $auctionID);
@@ -26,13 +25,11 @@ if (isset($_SESSION['UserID'])) {
     $viewResult = $checkStmt->get_result();
 
     if ($viewResult->num_rows === 0) {
-        // User has not viewed this auction, so insert a new view record
         $insertViewQuery = "INSERT INTO UserViews (UserID, AuctionID) VALUES (?, ?)";
         $insertStmt = $conn->prepare($insertViewQuery);
         $insertStmt->bind_param("ii", $userID, $auctionID);
         $insertStmt->execute();
 
-        // Update the views count in the Auction table
         $updateViewsQuery = "UPDATE Auction SET Views = Views + 1 WHERE AuctionID = ?";
         $updateStmt = $conn->prepare($updateViewsQuery);
         $updateStmt->bind_param("i", $auctionID);
@@ -45,9 +42,9 @@ if (isset($_SESSION['UserID'])) {
     $checkStmt->close();
 }
 
-// Prepare a query to fetch auction details, including Views count
-$sql = "SELECT a.ItemName, a.Description, a.StartPrice, a.ReservePrice, a.EndDate, 
-               u.UserName AS SellerName, c.CategoryName, a.Views 
+// Fetch auction details including views and image path
+$sql = "SELECT a.ItemName, a.Description, a.StartPrice, a.ReservePrice, a.EndDate, a.Image, 
+               u.UserName AS SellerName, u.UserID AS SellerID, c.CategoryName, a.Views 
         FROM Auction a
         JOIN Users u ON a.UserID = u.UserID
         JOIN Category c ON a.CategoryID = c.CategoryID
@@ -57,7 +54,6 @@ $stmt->bind_param("i", $auctionID);
 $stmt->execute();
 $result = $stmt->get_result();
 
-// Check if the auction exists
 if ($result->num_rows === 0) {
     echo "<div class='container mt-5'><p>Auction not found.</p></div>";
 } else {
@@ -77,16 +73,37 @@ if ($result->num_rows === 0) {
     $endDate = new DateTime($auction['EndDate']);
     $timeRemaining = $now < $endDate ? $endDate->diff($now) : null;
 
-    // Display auction details, including Views
+    // Fetch seller's average rating
+    $sellerID = $auction['SellerID'];
+    $avgRatingQuery = "SELECT AVG(Rating) AS AvgRating FROM SellerReviews WHERE SellerID = ?";
+    $avgRatingStmt = $conn->prepare($avgRatingQuery);
+    $avgRatingStmt->bind_param("i", $sellerID);
+    $avgRatingStmt->execute();
+    $avgRatingResult = $avgRatingStmt->get_result();
+    $avgRatingData = $avgRatingResult->fetch_assoc();
+    $avgRating = $avgRatingData['AvgRating'] ?? 0;
+    $avgRatingStmt->close();
+
+    // Display auction details with image, reviews, and seller rating
     echo "<div class='container mt-5'>";
     echo "<div class='row'>";
     echo "<div class='col-md-8'>";
     echo "<h2>" . htmlspecialchars($auction['ItemName']) . "</h2>";
     echo "<p><strong>Category:</strong> " . htmlspecialchars($auction['CategoryName']) . "</p>";
     echo "<p><strong>Seller:</strong> " . htmlspecialchars($auction['SellerName']) . "</p>";
+    echo "<p><strong>Seller Rating:</strong> " . ($avgRating ? number_format($avgRating, 1) . " / 5" : "No reviews yet") . "</p>";
+    
+    // Display auction image if available
+    if (!empty($auction['Image'])) {
+        echo "<img src='" . htmlspecialchars($auction['Image']) . "' alt='Auction Image' class='img-fluid mb-3' />";
+    } else {
+        echo "<p><em>No image available for this auction.</em></p>";
+    }
+
     echo "<p><strong>Description:</strong><br>" . nl2br(htmlspecialchars($auction['Description'])) . "</p>";
-    echo "<p><strong>Views:</strong> " . htmlspecialchars($auction['Views']) . "</p>"; // Display the Views count
+    echo "<p><strong>Views:</strong> " . htmlspecialchars($auction['Views']) . "</p>";
     echo "</div>";
+
     echo "<div class='col-md-4'>";
     echo "<div class='card mb-3'>";
     echo "<div class='card-body'>";
@@ -103,9 +120,8 @@ if ($result->num_rows === 0) {
         echo "<p class='text-danger'><strong>This auction has ended.</strong></p>";
     }
 
-    // Add to Watchlist button
+    // Watchlist functionality
     if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true && $_SESSION['Role'] === 'buyer') {
-        // Check if the auction is already in the user's watchlist
         $userID = $_SESSION['UserID'];
         $watchlistQuery = "SELECT * FROM WatchList WHERE AuctionID = ? AND UserID = ?";
         $watchlistStmt = $conn->prepare($watchlistQuery);
@@ -114,13 +130,11 @@ if ($result->num_rows === 0) {
         $watchlistResult = $watchlistStmt->get_result();
 
         if ($watchlistResult->num_rows > 0) {
-            // Auction is in watchlist
             echo "<form method='post' action='remove_from_watchlist.php'>
                     <input type='hidden' name='auctionID' value='$auctionID'>
                     <button type='submit' class='btn btn-secondary btn-block'>Unwatch</button>
                   </form>";
         } else {
-            // Auction is not in watchlist
             echo "<form method='post' action='add_to_watchlist.php'>
                     <input type='hidden' name='auctionID' value='$auctionID'>
                     <button type='submit' class='btn btn-primary btn-block'>Add to Watchlist</button>
@@ -158,7 +172,7 @@ if ($result->num_rows === 0) {
     echo "</div>"; // Close col-md-4
     echo "</div>"; // Close row
 
-    // Fetch and display bid history
+    // Bid history
     echo "<div class='bid-history mt-5'>";
     echo "<h3>Bid History</h3>";
     $historyQuery = "SELECT b.BidAmount, b.BidTime, u.Username AS BidderName 
@@ -188,8 +202,30 @@ if ($result->num_rows === 0) {
     }
     echo "</div>"; // Close bid-history div
 
-    // Close the bid history statement
-    $historyStmt->close();
+    // Seller Reviews
+    echo "<div class='seller-reviews mt-5'>";
+    echo "<h3>Seller Reviews</h3>";
+    $reviewQuery = "SELECT Rating, ReviewText, ReviewDate FROM SellerReviews WHERE SellerID = ? ORDER BY ReviewDate DESC";
+    $reviewStmt = $conn->prepare($reviewQuery);
+    $reviewStmt->bind_param("i", $sellerID);
+    $reviewStmt->execute();
+    $reviewResult = $reviewStmt->get_result();
+
+    if ($reviewResult->num_rows > 0) {
+        echo "<ul class='list-group'>";
+        while ($review = $reviewResult->fetch_assoc()) {
+            echo "<li class='list-group-item'>";
+            echo "<strong>Rating:</strong> " . $review['Rating'] . " / 5<br>";
+            echo "<strong>Review:</strong> " . htmlspecialchars($review['ReviewText']) . "<br>";
+            echo "<small><strong>Date:</strong> " . date("j M Y", strtotime($review['ReviewDate'])) . "</small>";
+            echo "</li>";
+        }
+        echo "</ul>";
+    } else {
+        echo "<p>No reviews for this seller.</p>";
+    }
+
+    $reviewStmt->close();
 }
 
 $stmt->close();
