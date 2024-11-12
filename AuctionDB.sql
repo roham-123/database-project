@@ -40,7 +40,7 @@ CREATE TABLE `Auction` (
   `CategoryID` int(11) NOT NULL,
   `ReservePrice` float DEFAULT NULL,
   `StartPrice` float DEFAULT NULL,
-  `EndDate` varchar(255) DEFAULT NULL
+  `EndDate` datetime(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -281,6 +281,7 @@ COMMIT;
 
 ALTER TABLE `Users`
 ADD `Username` varchar(255) NOT NULL AFTER `UserID`;
+
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

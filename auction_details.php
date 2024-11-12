@@ -16,7 +16,7 @@ $auctionID = $_GET['auctionID'];
 
 // Prepare a query to fetch auction details
 $sql = "SELECT a.ItemName, a.Description, a.StartPrice, a.ReservePrice, a.EndDate, 
-               u.Name AS SellerName, c.CategoryName 
+               u.UserName AS SellerName, c.CategoryName 
         FROM Auction a
         JOIN Users u ON a.UserID = u.UserID
         JOIN Category c ON a.CategoryID = c.CategoryID
@@ -129,7 +129,7 @@ if ($result->num_rows === 0) {
     // Fetch and display bid history
     echo "<div class='bid-history mt-5'>";
     echo "<h3>Bid History</h3>";
-    $historyQuery = "SELECT b.BidAmount, b.BidTime, u.Name AS BidderName 
+    $historyQuery = "SELECT b.BidAmount, b.BidTime, u.Username AS BidderName 
                      FROM Bid b 
                      JOIN Users u ON b.UserID = u.UserID 
                      WHERE b.AuctionID = ? 

@@ -17,7 +17,7 @@ $userID = $_SESSION['UserID'];
 
 // Fetch auctions where the user has placed bids
 $sql = "SELECT DISTINCT a.AuctionID, a.ItemName, a.Description, a.EndDate, a.StartPrice,
-               c.CategoryName, u.Name AS SellerName,
+               c.CategoryName, u.UserName AS SellerName,
                (SELECT MAX(b2.BidAmount) FROM Bid b2 WHERE b2.AuctionID = a.AuctionID) AS HighestBid,
                (SELECT MAX(b3.BidAmount) FROM Bid b3 WHERE b3.AuctionID = a.AuctionID AND b3.UserID = ?) AS YourHighestBid
         FROM Bid b

@@ -17,7 +17,7 @@ $userID = $_SESSION['UserID'];
 
 // Fetch auctions from the user's watchlist
 $sql = "SELECT a.AuctionID, a.ItemName, a.Description, a.EndDate, 
-               a.StartPrice, c.CategoryName, u.Name AS SellerName
+               a.StartPrice, c.CategoryName, u.UserName AS SellerName
         FROM WatchList w
         JOIN Auction a ON w.AuctionID = a.AuctionID
         JOIN Users u ON a.UserID = u.UserID
