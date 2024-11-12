@@ -9,7 +9,7 @@
     <h2 class="my-3">Recommendations for you</h2>
 
     <?php
-    // Check if the user is logged in and is a buyer
+    // Check if the user is logged in and is a buyer.
     if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSION['Role'] !== 'buyer') {
         echo "Access denied. Please log in as a buyer to view recommendations.";
         exit();
