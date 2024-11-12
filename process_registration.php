@@ -21,10 +21,10 @@ if ($password !== $passwordConfirmation) {
 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
 // Prepare SQL query to insert user data into the Users table
-$stmt = $conn->prepare("INSERT INTO Users (Name, Email, Password, Role, Username) VALUES (?, ?, ?, ?, ?)");
+$stmt = $conn->prepare("INSERT INTO Users (Username, Email, Password, Role) VALUES (?, ?, ?, ?)");
 
-// Bind the parameters, using username for both Name and Username fields
-$stmt->bind_param("sssss", $username, $email, $hashedPassword, $accountType, $username);
+// Bind the parameters
+$stmt->bind_param("ssss", $username, $email, $hashedPassword, $accountType);
 
 // Execute the query and check if it was successful
 if ($stmt->execute()) {
