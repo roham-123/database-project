@@ -4,6 +4,16 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 ?>
 
+<?php
+if (isset($_SESSION['Role']) && $_SESSION['Role'] == 'admin') {
+    echo('
+    <li class="nav-item mx-1">
+        <a class="nav-link" href="admin_dashboard.php">Admin Dashboard</a>
+    </li>
+    ');
+}
+?>
+
 <!doctype html>
 <html lang="en">
 <head>
