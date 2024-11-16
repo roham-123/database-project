@@ -18,19 +18,33 @@ if (isset($_POST['auctionID'], $_POST['sellerID'], $_POST['rating'])) {
     $rating = $_POST['rating'];
     $reviewText = $_POST['review'] ?? '';
 
-    // Insert the review into SellerReviews table
-    $insertReviewQuery = "INSERT INTO SellerReviews (AuctionID, BuyerID, SellerID, Rating, ReviewText) VALUES (?, ?, ?, ?, ?)";
-    $insertReviewStmt = $conn->prepare($insertReviewQuery);
-    $insertReviewStmt->bind_param("iiiss", $auctionID, $buyerID, $sellerID, $rating, $reviewText);
+    // Check if the buyer has already left a review for this auction
+    $reviewCheckQuery = "SELECT * FROM SellerReviews WHERE AuctionID = ? AND BuyerID = ?";
+    $reviewCheckStmt = $conn->prepare($reviewCheckQuery);
+    $reviewCheckStmt->bind_param("ii", $auctionID, $buyerID);
+    $reviewCheckStmt->execute();
+    $reviewCheckResult = $reviewCheckStmt->get_result();
 
-    if ($insertReviewStmt->execute()) {
-        echo "Thank you! Your review has been submitted.";
-        header("Location: auction_details.php?auctionID=" . $auctionID);
+    if ($reviewCheckResult->num_rows === 0) {
+        // Insert the review into SellerReviews table if no existing review found
+        $insertReviewQuery = "INSERT INTO SellerReviews (AuctionID, BuyerID, SellerID, Rating, ReviewText) VALUES (?, ?, ?, ?, ?)";
+        $insertReviewStmt = $conn->prepare($insertReviewQuery);
+        $insertReviewStmt->bind_param("iiiss", $auctionID, $buyerID, $sellerID, $rating, $reviewText);
+
+        if ($insertReviewStmt->execute()) {
+            echo "Thank you! Your review has been submitted.";
+            header("Location: auction_details.php?auctionID=" . $auctionID);
+            exit();
+        } else {
+            echo "Error: Could not submit your review.";
+        }
+
+        $insertReviewStmt->close();
     } else {
-        echo "Error: Could not submit your review.";
+        echo "You have already submitted a review for this auction.";
     }
 
-    $insertReviewStmt->close();
+    $reviewCheckStmt->close();
 } else {
     echo "All required fields are not provided.";
 }

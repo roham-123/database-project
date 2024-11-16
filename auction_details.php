@@ -59,14 +59,20 @@ if ($result->num_rows === 0) {
 } else {
     $auction = $result->fetch_assoc();
 
-    // Fetch the highest bid for this auction
-    $bidQuery = "SELECT MAX(BidAmount) AS HighestBid FROM Bid WHERE AuctionID = ?";
+    // Fetch the highest bid and the highest bidder for this auction
+    $bidQuery = "SELECT BidAmount, UserID FROM Bid WHERE AuctionID = ? ORDER BY BidAmount DESC LIMIT 1";
     $bidStmt = $conn->prepare($bidQuery);
     $bidStmt->bind_param("i", $auctionID);
     $bidStmt->execute();
     $bidResult = $bidStmt->get_result();
-    $bidData = $bidResult->fetch_assoc();
-    $currentPrice = $bidData['HighestBid'] ?? $auction['StartPrice'];
+    $highestBidderID = null;
+    $currentPrice = $auction['StartPrice'];
+
+    if ($bidResult->num_rows > 0) {
+        $bidData = $bidResult->fetch_assoc();
+        $currentPrice = $bidData['BidAmount'];
+        $highestBidderID = $bidData['UserID'];
+    }
 
     // Check if the auction has ended
     $now = new DateTime();
@@ -223,6 +229,47 @@ if ($result->num_rows === 0) {
         echo "</ul>";
     } else {
         echo "<p>No reviews for this seller.</p>";
+    }
+
+    // Provide option to leave a review if the auction has ended and the user is the highest bidder
+    if (!$timeRemaining && $highestBidderID == $_SESSION['UserID']) {
+        // Ensure the buyer hasn't already reviewed the seller for this auction
+        $checkReviewQuery = "SELECT * FROM SellerReviews WHERE AuctionID = ? AND BuyerID = ?";
+        $checkReviewStmt = $conn->prepare($checkReviewQuery);
+        $checkReviewStmt->bind_param("ii", $auctionID, $userID);
+        $checkReviewStmt->execute();
+        $reviewCheckResult = $checkReviewStmt->get_result();
+
+        if ($reviewCheckResult->num_rows === 0) {
+            echo "<div class='card mt-4'>";
+            echo "<div class='card-body'>";
+            echo "<h4 class='card-title'>Leave a Review for the Seller</h4>";
+            echo "<form method='post' action='submit_review.php'>
+                    <div class='form-group'>
+                        <label for='rating'>Rating (out of 5):</label>
+                        <select id='rating' name='rating' class='form-control' required>
+                            <option value=''>Select Rating</option>
+                            <option value='5'>5 - Excellent</option>
+                            <option value='4'>4 - Good</option>
+                            <option value='3'>3 - Average</option>
+                            <option value='2'>2 - Poor</option>
+                            <option value='1'>1 - Very Poor</option>
+                        </select>
+                    </div>
+                    <div class='form-group'>
+                        <label for='review'>Write a review:</label>
+                        <textarea id='review' name='review' class='form-control' rows='3'></textarea>
+                    </div>
+                    <input type='hidden' name='auctionID' value='$auctionID'>
+                    <input type='hidden' name='sellerID' value='$sellerID'>
+                    <button type='submit' class='btn btn-primary'>Submit Review</button>
+                  </form>";
+            echo "</div>";
+            echo "</div>";
+        } else {
+            echo "<p class='mt-3'>You have already submitted a review for this seller.</p>";
+        }
+        $checkReviewStmt->close();
     }
 
     $reviewStmt->close();
