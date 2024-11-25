@@ -5,8 +5,6 @@
 if (session_status() == PHP_SESSION_NONE) {
   session_start();
 }
-
-
 ?>
 
 <div class="container">
@@ -14,9 +12,6 @@ if (session_status() == PHP_SESSION_NONE) {
 <h2 class="my-3">Browse listings</h2>
 
 <div id="searchSpecs">
-<!-- When this form is submitted, this PHP page is what processes it.
-     Search/sort specs are passed to this page through parameters in the URL
-     (GET method of passing data to a page). -->
 <form method="get" action="browse.php">
   <div class="row">
     <div class="col-md-5 pr-0">
@@ -63,50 +58,13 @@ if (session_status() == PHP_SESSION_NONE) {
 </div>
 
 <?php
-  // Retrieve these from the URL
-  if (!isset($_GET['keyword'])) {
-    // TODO: Define behavior if a keyword has not been specified.
-  }
-  else {
-    $keyword = $_GET['keyword'];
-  }
-
-  if (!isset($_GET['cat'])) {
-    // TODO: Define behavior if a category has not been specified.
-  }
-  else {
-    $category = $_GET['cat'];
-  }
-  
-  if (!isset($_GET['order_by'])) {
-    // TODO: Define behavior if an order_by value has not been specified.
-  }
-  else {
-    $ordering = $_GET['order_by'];
-  }
-
-  /* TODO: Use above values to construct a query. Use this query to 
-     retrieve data from the database. (If there is no form data entered,
-     decide on appropriate default value/default query to make. */
-?>
-
-<div class="container mt-5">
-
-<!-- TODO: If result set is empty, print an informative message. Otherwise... -->
-
-<ul class="list-group">
-
-<!-- TODO: Use a while loop to print a list item for each auction listing
-     retrieved from the query -->
-
-<?php
 // Retrieve filters from the URL if set
 $keyword = isset($_GET['keyword']) ? $_GET['keyword'] : '';
 $category = isset($_GET['cat']) ? $_GET['cat'] : 'all';
 $ordering = isset($_GET['order_by']) ? $_GET['order_by'] : 'date';
 
 // Set up the base SQL query to fetch auctions
-$sql = "SELECT AuctionID, ItemName, Description, StartPrice, ReservePrice, EndDate FROM Auction WHERE EndDate > NOW()";
+$sql = "SELECT AuctionID, ItemName, Description, StartPrice, EndDate, Image FROM Auction WHERE EndDate > NOW()";
 
 // Add filter for keyword on ItemName only
 if (!empty($keyword)) {
@@ -141,7 +99,13 @@ if (!empty($keyword) && $category !== 'all') {
 }
 $stmt->execute();
 $result = $stmt->get_result();
+?>
 
+<div class="container mt-5">
+
+<ul class="list-group">
+
+<?php
 // Loop through the fetched results and display each auction
 while ($row = $result->fetch_assoc()) {
     $auctionID = $row['AuctionID'];
@@ -150,8 +114,12 @@ while ($row = $result->fetch_assoc()) {
     $startPrice = number_format($row['StartPrice'], 2);
     $endDate = new DateTime($row['EndDate']);
     $formattedDate = $endDate->format('Y-m-d H:i:s');
+    $image = htmlspecialchars($row['Image']);
 
     echo "<li class='list-group-item'>";
+    if (!empty($image)) {
+        echo "<img src='$image' alt='$itemName' class='img-thumbnail' style='max-width: 150px; max-height: 150px; float: left; margin-right: 15px;'>";
+    }
     echo "<h5>$itemName</h5>";
     echo "<p>$description</p>";
     echo "<p>Starting Price: £$startPrice</p>";
