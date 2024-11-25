@@ -35,6 +35,10 @@ if (session_status() == PHP_SESSION_NONE) {
           <option value="Electronics" <?php echo isset($_GET['cat']) && $_GET['cat'] == 'Electronics' ? 'selected' : ''; ?>>Electronics</option>
           <option value="Furniture" <?php echo isset($_GET['cat']) && $_GET['cat'] == 'Furniture' ? 'selected' : ''; ?>>Furniture</option>
           <option value="Clothing" <?php echo isset($_GET['cat']) && $_GET['cat'] == 'Clothing' ? 'selected' : ''; ?>>Clothing</option>
+          <option value="Books" <?php echo isset($_GET['cat']) && $_GET['cat'] == 'Books' ? 'selected' : ''; ?>>Books</option>
+          <option value="Toys" <?php echo isset($_GET['cat']) && $_GET['cat'] == 'Toys' ? 'selected' : ''; ?>>Toys</option>
+          <option value="Sports" <?php echo isset($_GET['cat']) && $_GET['cat'] == 'Sports' ? 'selected' : ''; ?>>Sports</option>
+          <option value="Other" <?php echo isset($_GET['cat']) && $_GET['cat'] == 'Other' ? 'selected' : ''; ?>>Other</option>
         </select>
       </div>
     </div>

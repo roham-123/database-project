@@ -47,6 +47,10 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSI
               <option value="Electronics">Electronics</option>
               <option value="Furniture">Furniture</option>
               <option value="Clothing">Clothing</option>
+              <option value="Clothing">Books</option>
+              <option value="Clothing">Toys</option>
+              <option value="Clothing">Sports</option>
+              <option value="Clothing">Other</option>
             </select>
             <small id="categoryHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> Select a category for this item.</small>
           </div>

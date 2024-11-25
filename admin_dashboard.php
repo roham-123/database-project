@@ -22,7 +22,7 @@ function logAdminAction($conn, $adminID, $actionType, $actionDescription) {
     }
 }
 
-// Handle delete auction request
+// Handles the delete auction request
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_auction'])) {
     $auctionID = $_POST['delete_auction'];
     $deleteQuery = "DELETE FROM Auction WHERE AuctionID = ?";
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_auction'])) {
         if ($stmt->execute()) {
             echo "<div class='container mt-3 alert alert-success'>Auction deleted successfully.</div>";
 
-            // Log the admin action
+            // Logs the admin action using the above function
             $adminID = $_SESSION['UserID'];
             $actionType = "Delete Auction";
             $actionDescription = "Deleted auction with AuctionID: $auctionID";
@@ -43,26 +43,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_auction'])) {
     }
 }
 
-// Handle blacklist user request
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['blacklist_user'])) {
-    $userID = $_POST['blacklist_user'];
-    $blacklistQuery = "UPDATE Users SET blacklisted = 1 WHERE UserID = ?";
-    if ($stmt = $conn->prepare($blacklistQuery)) {
-        $stmt->bind_param("i", $userID);
-        if ($stmt->execute()) {
-            echo "<div class='container mt-3 alert alert-success'>User blacklisted successfully.</div>";
+// handles the blacklisting of users
+if ($_SERVER['REQUEST_METHOD'] == 'POST') { //blacklists them
+    if (isset($_POST['blacklist_user'])) {
+        $userID = $_POST['blacklist_user'];
+        $query = "UPDATE Users SET blacklisted = 1 WHERE UserID = ?";
+        $actionType = "Blacklist User";
+        $actionDescription = "Blacklisted user with UserID: $userID";
+    } elseif (isset($_POST['unblacklist_user'])) { //unblacklists them
+        $userID = $_POST['unblacklist_user'];
+        $query = "UPDATE Users SET blacklisted = 0 WHERE UserID = ?";
+        $actionType = "Unblacklist User";
+        $actionDescription = "Unblacklisted user with UserID: $userID";
+    }
 
-            // Log the admin action
-            $adminID = $_SESSION['UserID'];
-            $actionType = "Blacklist User";
-            $actionDescription = "Blacklisted user with UserID: $userID";
-            logAdminAction($conn, $adminID, $actionType, $actionDescription);
-        } else {
-            echo "<div class='container mt-3 alert alert-danger'>Error blacklisting user: " . $stmt->error . "</div>";
+    if (isset($query)) {
+        if ($stmt = $conn->prepare($query)) {
+            $stmt->bind_param("i", $userID);
+            if ($stmt->execute()) {
+                echo "<div class='container mt-3 alert alert-success'>$actionDescription successfully.</div>";
+                logAdminAction($conn, $_SESSION['UserID'], $actionType, $actionDescription);
+            } else {
+                echo "<div class='container mt-3 alert alert-danger'>Error: " . $stmt->error . "</div>";
+            }
+            $stmt->close();
         }
-        $stmt->close();
     }
 }
+
+
 
 // Fetch all auctions
 $auctionsQuery = "SELECT * FROM Auction";
@@ -113,33 +122,40 @@ $logsResult = $conn->query($logsQuery);
     </form>
 
     <h2>Manage Users</h2>
-    <form method="POST" action="">
-        <table class="table table-bordered">
+    <table class="table table-bordered">
+        <tr>
+            <th>UserID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th> 
+            <th>Actions</th>
+        </tr>
+        <?php while ($user = $usersResult->fetch_assoc()) { ?>
             <tr>
-                <th>UserID</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Actions</th>
-            </tr>
-            <?php while ($user = $usersResult->fetch_assoc()) { ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($user['UserID']); ?></td>
-                    <td><?php echo htmlspecialchars($user['Username']); ?></td>
-                    <td><?php echo htmlspecialchars($user['Email']); ?></td>
-                    <td>
-                        <?php if (!$user['blacklisted']) { ?>
+                <td><?php echo htmlspecialchars($user['UserID']); ?></td>
+                <td><?php echo htmlspecialchars($user['Username']); ?></td>
+                <td><?php echo htmlspecialchars($user['Email']); ?></td>
+                <td><?php echo htmlspecialchars($user['Role']); ?></td>
+                <td>
+                    <?php if (!$user['blacklisted']) { ?>
+                        <form method="POST" action="">
                             <button type="submit" name="blacklist_user" value="<?php echo $user['UserID']; ?>"
                                     class="btn btn-warning"
                                     onclick="return confirm('Are you sure you want to blacklist this user?');">Blacklist
                             </button>
-                        <?php } else { ?>
-                            <span class="text-danger">Blacklisted</span>
-                        <?php } ?>
-                    </td>
-                </tr>
-            <?php } ?>
-        </table>
-    </form>
+                        </form>
+                    <?php } else { ?>
+                        <form method="POST" action="">
+                            <button type="submit" name="unblacklist_user" value="<?php echo $user['UserID']; ?>"
+                                    class="btn btn-success"
+                                    onclick="return confirm('Are you sure you want to unblacklist this user?');">Unblacklist
+                            </button>
+                        </form>
+                    <?php } ?>
+                </td>
+            </tr>
+        <?php } ?>
+    </table>
 
     <h2>Admin Action Logs</h2>
     <table class="table table-bordered">
