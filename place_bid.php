@@ -15,7 +15,7 @@ if (session_status() == PHP_SESSION_NONE) {
 
 // Check if user is logged in and is a buyer
 if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSION['Role'] !== 'buyer') {
-    echo "Access denied. Only buyers can place bids.";
+    echo "<script>alert('Access denied. Only buyers can place bids.'); window.history.back();</script>";
     exit();
 }
 
@@ -26,7 +26,7 @@ $userID = $_SESSION['UserID'];
 
 // Validate bid amount
 if ($bidAmount <= 0) {
-    echo "Invalid bid amount.";
+    echo "<script>alert('Invalid bid amount.'); window.history.back();</script>";
     exit();
 }
 
@@ -43,7 +43,7 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows === 0) {
-    echo "Auction not found.";
+    echo "<script>alert('Auction not found.'); window.history.back();</script>";
     exit();
 }
 
@@ -54,7 +54,7 @@ $sellerID = $auction['SellerID'];
 $now = new DateTime();
 
 if ($now > $endDate) {
-    echo "The auction has already ended.";
+    echo "<script>alert('The auction has already ended.'); window.history.back();</script>";
     exit();
 }
 
@@ -81,7 +81,7 @@ if ($highestBidRow['HighestBid'] !== null) {
 
 // Ensure bid amount is higher than the current highest bid
 if ($bidAmount <= $highestBid) {
-    echo "Your bid must be higher than the current highest bid of £" . number_format($highestBid, 2);
+    echo "<script>alert('Your bid must be higher than the current highest bid of £" . number_format($highestBid, 2) . "'); window.history.back();</script>";
     exit();
 }
 
@@ -90,8 +90,6 @@ $stmt = $conn->prepare("INSERT INTO Bid (AuctionID, UserID, BidAmount, BidTime) 
 $stmt->bind_param("iid", $auctionID, $userID, $bidAmount);
 
 if ($stmt->execute()) {
-    echo "Bid placed successfully! <a href='auction_details.php?auctionID=$auctionID'>Go back to auction</a>";
-    
     // Notify the previous highest bidder if applicable
     if ($previousHighestBidderID && $previousHighestBidderID != $userID) {
         sendNotification($previousHighestBidderID, $auctionID, 'You have been outbid on an auction');
@@ -99,8 +97,13 @@ if ($stmt->execute()) {
 
     // Notify the seller about the new bid
     sendNotification($sellerID, $auctionID, 'New bid placed on your auction');
+
+    // Redirect back to the auction with a success message
+    echo "<script>alert('Bid placed successfully!'); window.location.href = 'auction_details.php?auctionID=$auctionID';</script>";
+    exit();
 } else {
-    echo "Error: " . $stmt->error;
+    echo "<script>alert('Error placing bid: " . $stmt->error . "'); window.history.back();</script>";
+    exit();
 }
 
 // Close statement and connection
@@ -147,4 +150,3 @@ function sendNotification($userID, $auctionID, $subject) {
     $stmt->close();
 }
 ?>
-

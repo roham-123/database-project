@@ -58,9 +58,10 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSI
               <div class="input-group-prepend">
                 <span class="input-group-text">£</span>
               </div>
-              <input type="number" class="form-control" id="auctionStartPrice" name="startPrice" required>
+              <!-- Set minimum value to 1 -->
+              <input type="number" class="form-control" id="auctionStartPrice" name="startPrice" min="1" required>
             </div>
-            <small id="startBidHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> Initial bid amount.</small>
+            <small id="startBidHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> Initial bid amount must be £1 or more.</small>
           </div>
         </div>
         <div class="form-group row">
@@ -78,8 +79,12 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSI
         <div class="form-group row">
           <label for="auctionEndDate" class="col-sm-2 col-form-label text-right">End date</label>
           <div class="col-sm-10">
-            <input type="datetime-local" class="form-control" id="auctionEndDate" name="endDate" required>
-            <small id="endDateHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> Day for the auction to end.</small>
+            <?php
+              // Calculate minimum end date (next day)
+              $minDate = (new DateTime())->modify('+1 day')->format('Y-m-d\TH:i');
+            ?>
+            <input type="datetime-local" class="form-control" id="auctionEndDate" name="endDate" min="<?php echo $minDate; ?>" required>
+            <small id="endDateHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> End date must be at least 1 day from now.</small>
           </div>
         </div>
         <!-- New Photo Upload Field -->

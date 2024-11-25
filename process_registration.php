@@ -12,9 +12,16 @@ $password = $_POST['password'];
 $passwordConfirmation = $_POST['passwordConfirmation'];
 $username = $_POST['username']; // Get the username from the form
 
+// Check if the email is valid
+if (!filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_match('/@.+\..+/', $email)) {
+    echo "<script>alert('Invalid email address. Please enter a valid email (e.g., example@example.com).'); window.location.href = 'register.php';</script>";
+    exit();
+}
+
 // Check if the passwords match
 if ($password !== $passwordConfirmation) {
-    die("Passwords do not match. Please go back and try again.");
+    echo "<script>alert('Passwords do not match. Please go back and try again.');</script>";
+    exit();
 }
 
 // Hash the password for security
@@ -28,8 +35,9 @@ $emailCheckResult = $emailCheckStmt->get_result();
 
 if ($emailCheckResult->num_rows > 0) {
     // Email already exists
-    echo "This email is already registered. Please use a different email or log in.";
     $emailCheckStmt->close();
+    echo "<script>alert('This email is already registered. Please use a different email or log in.'); window.location.href = 'register.php';</script>";
+    exit();
 } else {
     // Prepare SQL query to insert user data into the Users table
     $stmt = $conn->prepare("INSERT INTO Users (Username, Email, Password, Role) VALUES (?, ?, ?, ?)");
@@ -37,7 +45,8 @@ if ($emailCheckResult->num_rows > 0) {
 
     // Execute the query and check if it was successful
     if ($stmt->execute()) {
-        echo "Registration successful. You can now <a href=\"index.php\" data-toggle=\"modal\" data-target=\"#loginModal\">log in</a>.";
+        // Redirect to browse.php with a success message
+        echo "<script>alert('Registration successful!'); window.location.href = 'browse.php';</script>";
     } else {
         echo "Error: " . $stmt->error;
     }

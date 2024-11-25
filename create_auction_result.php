@@ -25,7 +25,7 @@ if (isset($_FILES['auctionPhoto']) && $_FILES['auctionPhoto']['error'] == UPLOAD
     // Set the target directory and unique filename
     $targetDir = "uploads/";
     $fileType = strtolower(pathinfo($_FILES["auctionPhoto"]["name"], PATHINFO_EXTENSION));
-    
+
     // Allowed file types
     $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'];
     if (in_array($fileType, $allowedTypes)) {
@@ -36,11 +36,11 @@ if (isset($_FILES['auctionPhoto']) && $_FILES['auctionPhoto']['error'] == UPLOAD
         if (move_uploaded_file($_FILES["auctionPhoto"]["tmp_name"], $targetFile)) {
             $imagePath = $targetFile; // Save file path to store in the database
         } else {
-            echo "Error uploading file.";
+            echo "<script>alert('Error uploading file.'); window.history.back();</script>";
             exit();
         }
     } else {
-        echo "Invalid file type. Only JPG, JPEG, PNG, and GIF files are allowed.";
+        echo "<script>alert('Invalid file type. Only JPG, JPEG, PNG, and GIF files are allowed.'); window.history.back();</script>";
         exit();
     }
 }
@@ -55,7 +55,8 @@ if ($result->num_rows > 0) {
     $row = $result->fetch_assoc();
     $categoryID = $row['CategoryID'];
 } else {
-    die("Invalid category selected.");
+    echo "<script>alert('Invalid category selected.'); window.history.back();</script>";
+    exit();
 }
 
 $stmt->close();
@@ -66,16 +67,19 @@ $stmt->bind_param("issiddss", $userID, $itemName, $description, $categoryID, $st
 
 // Execute the query and check if it was successful
 if ($stmt->execute()) {
-    echo "Auction created successfully! <a href='browse.php'>Go back to browse auctions</a>";
+    // Get the ID of the created auction
+    $auctionID = $stmt->insert_id;
+    $stmt->close();
+    closeConnection($conn);
+
+    // Redirect to the auction details page
+    header("Location: auction_details.php?auctionID=$auctionID");
+    exit();
 } else {
-    echo "Error: " . $stmt->error;
+    echo "<script>alert('Error creating auction: " . $stmt->error . "'); window.history.back();</script>";
 }
 
 // Close statement and connection
 $stmt->close();
 closeConnection($conn);
 ?>
-
-</div>
-
-<?php include_once("footer.php") ?>

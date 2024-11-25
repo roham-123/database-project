@@ -6,11 +6,7 @@ if (session_status() == PHP_SESSION_NONE) {
   session_start();
 }
 
-if (isset($_SESSION['UserID'])) {
-    echo "Logged in as: " . $_SESSION['Username'] . " (Role: " . $_SESSION['Role'] . ")";
-} else {
-    echo "Not logged in.";
-}
+
 ?>
 
 <div class="container">
