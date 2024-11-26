@@ -74,40 +74,58 @@ if ($result->num_rows === 0) {
         $highestBidderID = $bidData['UserID'];
     }
 
-    // Check if the auction has ended
-    $now = new DateTime();
-    $endDate = new DateTime($auction['EndDate']);
-    $timeRemaining = $now < $endDate ? $endDate->diff($now) : null;
+// Check if the auction has ended
+$now = new DateTime();
+$endDate = new DateTime($auction['EndDate']);
+$timeRemaining = $now < $endDate ? $endDate->diff($now) : null;
 
-    // Fetch seller's average rating
-    $sellerID = $auction['SellerID'];
-    $avgRatingQuery = "SELECT AVG(Rating) AS AvgRating FROM SellerReviews WHERE SellerID = ?";
-    $avgRatingStmt = $conn->prepare($avgRatingQuery);
-    $avgRatingStmt->bind_param("i", $sellerID);
-    $avgRatingStmt->execute();
-    $avgRatingResult = $avgRatingStmt->get_result();
-    $avgRatingData = $avgRatingResult->fetch_assoc();
-    $avgRating = $avgRatingData['AvgRating'] ?? 0;
-    $avgRatingStmt->close();
-
-    // Display auction details with image, reviews, and seller rating
-    echo "<div class='container mt-5'>";
-    echo "<div class='row'>";
-    echo "<div class='col-md-8'>";
-    echo "<h2>" . htmlspecialchars($auction['ItemName']) . "</h2>";
-    echo "<p><strong>Category:</strong> " . htmlspecialchars($auction['CategoryName']) . "</p>";
-    echo "<p><strong>Seller:</strong> " . htmlspecialchars($auction['SellerName']) . "</p>";
-    echo "<p><strong>Seller Rating:</strong> " . ($avgRating ? number_format($avgRating, 1) . " / 5" : "No reviews yet") . "</p>";
-    
-    // Display auction image if available
-    if (!empty($auction['Image'])) {
-        echo "<img src='" . htmlspecialchars($auction['Image']) . "' alt='Auction Image' class='img-fluid mb-3' />";
-    } else {
-        echo "<p><em>No image available for this auction.</em></p>";
+// Check if the logged-in user is the highest bidder
+$hasWon = false; // Initialize flag
+if (!$timeRemaining && isset($_SESSION['UserID']) && $_SESSION['Role'] === 'buyer') {
+    if ($highestBidderID == $_SESSION['UserID']) {
+        $hasWon = true; // Set flag to true if the logged-in user is the highest bidder
     }
+}
 
-    echo "<p><strong>Description:</strong><br>" . nl2br(htmlspecialchars($auction['Description'])) . "</p>";
-    echo "<p><strong>Views:</strong> " . htmlspecialchars($auction['Views']) . "</p>";
+// Fetch seller's average rating
+$sellerID = $auction['SellerID'];
+$avgRatingQuery = "SELECT AVG(Rating) AS AvgRating FROM SellerReviews WHERE SellerID = ?";
+$avgRatingStmt = $conn->prepare($avgRatingQuery);
+$avgRatingStmt->bind_param("i", $sellerID);
+$avgRatingStmt->execute();
+$avgRatingResult = $avgRatingStmt->get_result();
+$avgRatingData = $avgRatingResult->fetch_assoc();
+$avgRating = $avgRatingData['AvgRating'] ?? 0;
+$avgRatingStmt->close();
+
+// Display auction details with image, reviews, seller rating, and winning status
+echo "<div class='container mt-5'>";
+echo "<div class='row'>";
+echo "<div class='col-md-8'>";
+echo "<h2>" . htmlspecialchars($auction['ItemName']) . "</h2>";
+echo "<p><strong>Category:</strong> " . htmlspecialchars($auction['CategoryName']) . "</p>";
+echo "<p><strong>Seller:</strong> " . htmlspecialchars($auction['SellerName']) . "</p>";
+echo "<p><strong>Seller Rating:</strong> " . ($avgRating ? number_format($avgRating, 1) . " / 5" : "No reviews yet") . "</p>";
+
+// Display auction image if available
+if (!empty($auction['Image'])) {
+    echo "<img src='" . htmlspecialchars($auction['Image']) . "' alt='Auction Image' class='img-fluid mb-3' />";
+} else {
+    echo "<p><em>No image available for this auction.</em></p>";
+}
+
+echo "<p><strong>Description:</strong><br>" . nl2br(htmlspecialchars($auction['Description'])) . "</p>";
+echo "<p><strong>Views:</strong> " . htmlspecialchars($auction['Views']) . "</p>";
+
+// Display winning message if applicable
+if (!$timeRemaining && isset($_SESSION['UserID']) && $_SESSION['Role'] === 'buyer') {
+    if ($hasWon) {
+        echo "<p class='text-success'><strong>Congratulations! You have won this auction.</strong></p>";
+    } else {
+        echo "<p class='text-danger'><strong>This auction has ended, and you did not win.</strong></p>";
+    }
+}
+    
     echo "</div>";
 
     echo "<div class='col-md-4'>";
