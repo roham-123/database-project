@@ -122,17 +122,19 @@ INSERT INTO `Category` (`CategoryName`) VALUES
 ('Other');
 
 -- Sample data for Auction table
-INSERT INTO `Auction` (`UserID`, `ItemName`, `Description`, `CategoryID`, `ReservePrice`, `StartPrice`, `EndDate`) VALUES
-(2, 'Laptop', 'A high-performance laptop', 1, 500, 300, '2024-12-01 12:00:00'),
-(2, 'Sofa', 'Comfortable 3-seater sofa', 2, 200, 150, '2024-11-20 18:00:00'),
-(6, 'Mountain Bike', 'A bike perfect for mountain trails', 6, 300, 150, '2024-11-25 17:00:00'),
-(6, 'Dining Table', 'Modern wooden dining table', 2, 250, 200, '2024-11-30 16:00:00'),
-(2, 'Smartphone', 'Latest model smartphone', 1, 600, 350, '2024-12-05 14:00:00'),
-(6, 'Novel Set', 'Collection of famous novels', 4, 50, 25, '2024-11-27 20:00:00'),
-(2, 'Gaming Console', 'Play the latest games', 1, 400, 300, '2024-12-03 19:00:00'),
-(2, 'Office Chair', 'Ergonomic office chair', 2, 150, 100, '2024-11-28 18:00:00'),
-(6, 'Winter Jacket', 'Warm and stylish winter jacket', 3, 80, 50, '2024-11-29 12:00:00'),
-(6, 'Tennis Racket', 'High-quality tennis racket', 6, 100, 70, '2024-11-26 15:00:00');
+INSERT INTO `Auction` (`UserID`, `ItemName`, `Description`, `CategoryID`, `ReservePrice`, `StartPrice`, `EndDate`, `Views`) VALUES
+(2, 'Laptop', 'A high-performance laptop', 1, 500, 300, '2024-12-01 12:00:00', 15),
+(2, 'Sofa', 'Comfortable 3-seater sofa', 2, 200, 150, '2024-11-20 18:00:00', 20),
+(6, 'Mountain Bike', 'A bike perfect for mountain trails', 6, 300, 150, '2024-11-25 17:00:00', 18),
+(6, 'Dining Table', 'Modern wooden dining table', 2, 250, 200, '2024-11-30 16:00:00', 25),
+(2, 'Smartphone', 'Latest model smartphone', 1, 600, 350, '2024-12-05 14:00:00', 30),
+(6, 'Novel Set', 'Collection of famous novels', 4, 50, 25, '2024-11-27 20:00:00', 10),
+(2, 'Gaming Console', 'Play the latest games', 1, 400, 300, '2024-12-03 19:00:00', 22),
+(2, 'Office Chair', 'Ergonomic office chair', 2, 150, 100, '2024-11-28 18:00:00', 17),
+(6, 'Winter Jacket', 'Warm and stylish winter jacket', 3, 80, 50, '2024-11-29 12:00:00', 19),
+(6, 'Tennis Racket', 'High-quality tennis racket', 6, 100, 70, '2024-11-26 15:00:00', 16),
+(2, 'Electric Guitar', 'High-quality electric guitar', 1, 300, 200, '2024-12-04 17:00:00', 21),
+(6, 'Office Desk', 'Wooden office desk', 2, 150, 100, '2024-12-02 18:00:00', 23);
 
 -- Sample data for Bid table (AdminUser is removed, only other users bid)
 INSERT INTO `Bid` (`AuctionID`, `UserID`, `BidAmount`) VALUES
@@ -154,7 +156,11 @@ INSERT INTO `Bid` (`AuctionID`, `UserID`, `BidAmount`) VALUES
 (8, 3, 130),
 (9, 7, 60),
 (10, 3, 80),
-(10, 4, 90);
+(10, 4, 90),
+(11, 4, 250),
+(11, 7, 270),
+(12, 3, 150),
+(12, 5, 180);
 
 -- Sample data for WatchList table
 INSERT INTO `WatchList` (`AuctionID`, `UserID`) VALUES
@@ -167,7 +173,9 @@ INSERT INTO `WatchList` (`AuctionID`, `UserID`) VALUES
 (7, 5),
 (8, 4),
 (9, 7),
-(10, 3);
+(10, 3),
+(11, 5),
+(12, 7);
 
 -- Sample data for UserViews table
 INSERT INTO `UserViews` (`UserID`, `AuctionID`) VALUES
@@ -180,7 +188,9 @@ INSERT INTO `UserViews` (`UserID`, `AuctionID`) VALUES
 (7, 9),
 (4, 8),
 (3, 10),
-(1, 4);
+(1, 4),
+(5, 11),
+(7, 12);
 
 -- Sample data for SellerReviews table (AdminUser is not involved)
 INSERT INTO `SellerReviews` (`AuctionID`, `BuyerID`, `SellerID`, `Rating`, `ReviewText`) VALUES
@@ -193,6 +203,8 @@ INSERT INTO `SellerReviews` (`AuctionID`, `BuyerID`, `SellerID`, `Rating`, `Revi
 (7, 5, 2, 4, 'Product was good, but packaging could be better.'),
 (8, 4, 2, 5, 'Very comfortable chair, great seller!'),
 (9, 7, 6, 4, 'Nice jacket, as advertised.'),
-(10, 3, 6, 5, 'Amazing quality, very satisfied.');
+(10, 3, 6, 5, 'Amazing quality, very satisfied.'),
+(11, 4, 2, 5, 'Amazing sound quality, loved the guitar.'),
+(12, 5, 6, 4, 'Desk was sturdy, decent quality.');
 
 COMMIT;
