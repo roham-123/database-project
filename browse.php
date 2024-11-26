@@ -3,7 +3,7 @@
 
 <?php
 if (session_status() == PHP_SESSION_NONE) {
-  session_start();
+  session_start(); // start the session if it hasn't started yet
 }
 ?>
 
@@ -20,7 +20,7 @@ if (session_status() == PHP_SESSION_NONE) {
 	    <div class="input-group">
           <div class="input-group-prepend">
             <span class="input-group-text bg-transparent pr-0 text-muted">
-              <i class="fa fa-search"></i>
+              <i class="fa fa-search"></i> <!-- lil search icon here -->
             </span>
           </div>
           <input type="text" class="form-control border-left-0" id="keyword" name="keyword" placeholder="Search for anything" value="<?php echo isset($_GET['keyword']) ? htmlspecialchars($_GET['keyword']) : ''; ?>">
@@ -31,7 +31,7 @@ if (session_status() == PHP_SESSION_NONE) {
       <div class="form-group">
         <label for="cat" class="sr-only">Search within:</label>
         <select class="form-control" id="cat" name="cat">
-          <option selected value="all">All categories</option>
+          <option selected value="all">All categories</option> <!-- default to all categories -->
           <option value="Electronics" <?php echo isset($_GET['cat']) && $_GET['cat'] == 'Electronics' ? 'selected' : ''; ?>>Electronics</option>
           <option value="Furniture" <?php echo isset($_GET['cat']) && $_GET['cat'] == 'Furniture' ? 'selected' : ''; ?>>Furniture</option>
           <option value="Clothing" <?php echo isset($_GET['cat']) && $_GET['cat'] == 'Clothing' ? 'selected' : ''; ?>>Clothing</option>
@@ -44,7 +44,7 @@ if (session_status() == PHP_SESSION_NONE) {
     </div>
     <div class="col-md-3 pr-0">
       <div class="form-inline">
-        <label class="mx-2" for="order_by">Sort by:</label>
+        <label class="mx-2" for="order_by">Sort by:</label> <!-- sorting options here -->
         <select class="form-control" id="order_by" name="order_by">
           <option selected value="pricelow" <?php echo isset($_GET['order_by']) && $_GET['order_by'] == 'pricelow' ? 'selected' : ''; ?>>Price (low to high)</option>
           <option value="pricehigh" <?php echo isset($_GET['order_by']) && $_GET['order_by'] == 'pricehigh' ? 'selected' : ''; ?>>Price (high to low)</option>
@@ -53,7 +53,7 @@ if (session_status() == PHP_SESSION_NONE) {
       </div>
     </div>
     <div class="col-md-1 px-0">
-      <button type="submit" class="btn btn-primary">Search</button>
+      <button type="submit" class="btn btn-primary">Search</button> <!-- search button -->
     </div>
   </div>
 </form>
@@ -62,7 +62,7 @@ if (session_status() == PHP_SESSION_NONE) {
 </div>
 
 <?php
-// Retrieve filters from the URL if set
+// get filters from the URL if set
 $keyword = isset($_GET['keyword']) ? $_GET['keyword'] : '';
 $category = isset($_GET['cat']) ? $_GET['cat'] : 'all';
 $ordering = isset($_GET['order_by']) ? $_GET['order_by'] : 'date';
@@ -70,7 +70,7 @@ $ordering = isset($_GET['order_by']) ? $_GET['order_by'] : 'date';
 // Set up the base SQL query to fetch auctions
 $sql = "SELECT AuctionID, ItemName, Description, StartPrice, EndDate, Image FROM Auction WHERE EndDate > NOW()";
 
-// Add filter for keyword on ItemName only
+// add filter for keyword on ItemName only if there's something there
 if (!empty($keyword)) {
     $sql .= " AND ItemName LIKE ?";
     $keyword_param = "%" . $keyword . "%";
@@ -79,16 +79,16 @@ if ($category !== 'all') {
     $sql .= " AND CategoryID = (SELECT CategoryID FROM Category WHERE CategoryName = ?)";
 }
 
-// Order by user preference
+// order by whatever user picked
 switch ($ordering) {
     case 'pricelow':
-        $sql .= " ORDER BY StartPrice ASC";
+        $sql .= " ORDER BY StartPrice ASC"; // price low to high
         break;
     case 'pricehigh':
-        $sql .= " ORDER BY StartPrice DESC";
+        $sql .= " ORDER BY StartPrice DESC"; // price high to low
         break;
     case 'date':
-        $sql .= " ORDER BY EndDate ASC";
+        $sql .= " ORDER BY EndDate ASC"; // soonest expiry
         break;
 }
 
@@ -110,7 +110,7 @@ $result = $stmt->get_result();
 <ul class="list-group">
 
 <?php
-// Loop through the fetched results and display each auction
+// Loop through the fetched results and show each auction
 while ($row = $result->fetch_assoc()) {
     $auctionID = $row['AuctionID'];
     $itemName = htmlspecialchars($row['ItemName']);
@@ -132,7 +132,7 @@ while ($row = $result->fetch_assoc()) {
     echo "</li>";
 }
 
-// If no auctions found
+// if no auctions found
 if ($result->num_rows == 0) {
     echo "<li class='list-group-item'>No auctions found matching your criteria.</li>";
 }

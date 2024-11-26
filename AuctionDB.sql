@@ -1,9 +1,9 @@
 -- Create and use the AuctionDB database
-DROP DATABASE IF EXISTS AuctionDB;
-CREATE DATABASE AuctionDB;
+DROP DATABASE IF EXISTS AuctionDB; 
+CREATE DATABASE AuctionDB; 
 USE AuctionDB;
 
--- Table for users
+-- table for users (admin user shouldn't be considered a buyer or seller, just for management purposes)
 CREATE TABLE `Users` (
   `UserID` INT AUTO_INCREMENT PRIMARY KEY,
   `Username` VARCHAR(255) NOT NULL,
@@ -13,13 +13,13 @@ CREATE TABLE `Users` (
   `blacklisted` BOOLEAN NOT NULL DEFAULT 0
 );
 
--- Table for categories
+-- table for categories (like different kinds of stuff we have in auctions)
 CREATE TABLE `Category` (
   `CategoryID` INT AUTO_INCREMENT PRIMARY KEY,
   `CategoryName` VARCHAR(255) NOT NULL
 );
 
--- Table for auctions
+-- table for auctions (where sellers list their items for auction)
 CREATE TABLE `Auction` (
   `AuctionID` INT AUTO_INCREMENT PRIMARY KEY,
   `UserID` INT,
@@ -35,7 +35,7 @@ CREATE TABLE `Auction` (
   FOREIGN KEY (`CategoryID`) REFERENCES `Category`(`CategoryID`) ON DELETE CASCADE
 );
 
--- Table for bids
+-- table for bids (only buyers can bid, admin isn't allowed here)
 CREATE TABLE `Bid` (
   `BidID` INT AUTO_INCREMENT PRIMARY KEY,
   `AuctionID` INT,
@@ -46,7 +46,7 @@ CREATE TABLE `Bid` (
   FOREIGN KEY (`UserID`) REFERENCES `Users`(`UserID`) ON DELETE CASCADE
 );
 
--- Table for notifications
+-- table for notifications (used for sending notifications to users)
 CREATE TABLE `Notification` (
   `NotificationID` INT AUTO_INCREMENT PRIMARY KEY,
   `AuctionID` INT,
@@ -57,7 +57,7 @@ CREATE TABLE `Notification` (
   FOREIGN KEY (`UserID`) REFERENCES `Users`(`UserID`) ON DELETE CASCADE
 );
 
--- Table for watchlist
+-- table for watchlist (users can keep track of auctions they're interested in)
 CREATE TABLE `WatchList` (
   `WatchID` INT AUTO_INCREMENT PRIMARY KEY,
   `AuctionID` INT,
@@ -66,7 +66,7 @@ CREATE TABLE `WatchList` (
   FOREIGN KEY (`UserID`) REFERENCES `Users`(`UserID`) ON DELETE CASCADE
 );
 
--- Table for user views (to track auction views)
+-- table for user views (tracking how many times a user views a particular auction)
 CREATE TABLE `UserViews` (
   `UserViewID` INT AUTO_INCREMENT PRIMARY KEY,
   `UserID` INT,
@@ -76,7 +76,7 @@ CREATE TABLE `UserViews` (
   FOREIGN KEY (`AuctionID`) REFERENCES `Auction`(`AuctionID`) ON DELETE CASCADE
 );
 
--- Table for seller reviews and ratings
+-- table for seller reviews and ratings (for buyers to rate sellers, admin not involved)
 CREATE TABLE `SellerReviews` (
   `ReviewID` INT AUTO_INCREMENT PRIMARY KEY,
   `AuctionID` INT NOT NULL,
@@ -90,7 +90,7 @@ CREATE TABLE `SellerReviews` (
   FOREIGN KEY (`SellerID`) REFERENCES `Users`(`UserID`) ON DELETE CASCADE
 );
 
--- Table for admin actions log
+-- table for admin actions log (track admin actions like deleting users or managing auctions)
 CREATE TABLE `AdminActions` (
   `ActionID` INT AUTO_INCREMENT PRIMARY KEY,
   `AdminID` INT NOT NULL,
@@ -100,7 +100,7 @@ CREATE TABLE `AdminActions` (
   FOREIGN KEY (`AdminID`) REFERENCES `Users`(`UserID`) ON DELETE CASCADE
 );
 
--- Sample data for Users table
+-- sample data for Users table (Admin is UserID 1, only managing stuff here)
 INSERT INTO `Users` (`Username`, `Email`, `Password`, `Role`, `blacklisted`) VALUES
 ('AdminUser', 'admin@example.com', '$2y$10$scAVQZPVzAI7BFYWXSkxt.CO9.FzAmB57X0AGd2IetiV8CW3cmsPm', 'admin', 0),
 ('User1', 'user1@example.com', 'hashed_password_1', 'buyer', 0),
@@ -111,7 +111,7 @@ INSERT INTO `Users` (`Username`, `Email`, `Password`, `Role`, `blacklisted`) VAL
 ('User6', 'user6@example.com', 'hashed_password_6', 'seller', 0),
 ('User7', 'user7@example.com', 'hashed_password_7', 'buyer', 0);
 
--- Sample data for Category table
+-- sample data for Category table (adding different kinds of categories, nothing fancy)
 INSERT INTO `Category` (`CategoryName`) VALUES
 ('Electronics'),
 ('Furniture'),
@@ -121,7 +121,7 @@ INSERT INTO `Category` (`CategoryName`) VALUES
 ('Sports'),
 ('Other');
 
--- Sample data for Auction table (with images in the "uploads" folder)
+-- sample data for Auction table (adding auctions, all images are in 'uploads' folder)
 INSERT INTO `Auction` (`UserID`, `ItemName`, `Description`, `CategoryID`, `ReservePrice`, `StartPrice`, `EndDate`, `Views`, `Image`) VALUES
 (2, 'Laptop', 'A high-performance laptop', 1, 500, 300, '2024-12-01 12:00:00', 15, 'uploads/laptop.jpg'),
 (2, 'Sofa', 'Comfortable 3-seater sofa', 2, 200, 150, '2024-11-20 18:00:00', 20, 'uploads/sofa.jpg'),
@@ -136,8 +136,7 @@ INSERT INTO `Auction` (`UserID`, `ItemName`, `Description`, `CategoryID`, `Reser
 (2, 'Electric Guitar', 'High-quality electric guitar', 1, 300, 200, '2024-12-04 17:00:00', 21, 'uploads/guitar.jpg'),
 (6, 'Office Desk', 'Wooden office desk', 2, 150, 100, '2024-12-02 18:00:00', 23, 'uploads/desk.jpg');
 
-
--- Sample data for Bid table (AdminUser is removed, only other users bid)
+-- sample data for Bid table (admin isn't allowed to bid, only buyers can)
 INSERT INTO `Bid` (`AuctionID`, `UserID`, `BidAmount`) VALUES
 (1, 3, 360),
 (1, 4, 370),
@@ -145,7 +144,6 @@ INSERT INTO `Bid` (`AuctionID`, `UserID`, `BidAmount`) VALUES
 (3, 3, 170),
 (3, 5, 180),
 (3, 7, 200),
-(4, 1, 210),
 (4, 5, 220),
 (5, 4, 400),
 (5, 7, 420),
@@ -163,25 +161,13 @@ INSERT INTO `Bid` (`AuctionID`, `UserID`, `BidAmount`) VALUES
 (12, 3, 150),
 (12, 5, 180);
 
--- Sample data for WatchList table
+-- sample data for WatchList table (admin isn't allowed a watchlist)
 INSERT INTO `WatchList` (`AuctionID`, `UserID`) VALUES
-(1, 1),
-(2, 1),
 (3, 3),
-(4, 1),
-(5, 4),
-(6, 3),
-(7, 5),
-(8, 4),
-(9, 7),
-(10, 3),
-(11, 5),
-(12, 7);
+(4, 5);
 
--- Sample data for UserViews table
+-- sample data for UserViews table (tracking who viewed what auctions, admin views removed)
 INSERT INTO `UserViews` (`UserID`, `AuctionID`) VALUES
-(1, 1),
-(1, 2),
 (3, 3),
 (4, 5),
 (5, 7),
@@ -189,16 +175,15 @@ INSERT INTO `UserViews` (`UserID`, `AuctionID`) VALUES
 (7, 9),
 (4, 8),
 (3, 10),
-(1, 4),
 (5, 11),
 (7, 12);
 
--- Sample data for SellerReviews table (AdminUser is not involved)
+-- sample data for SellerReviews table (only buyers can leave reviews, no admin reviews)
 INSERT INTO `SellerReviews` (`AuctionID`, `BuyerID`, `SellerID`, `Rating`, `ReviewText`) VALUES
 (1, 3, 2, 5, 'Excellent seller, very professional!'),
-(2, 1, 2, 4, 'Good experience overall.'),
+(2, 4, 2, 4, 'Good experience overall.'),
 (3, 3, 6, 5, 'Great product, highly recommend!'),
-(4, 1, 6, 4, 'Item as described, good seller.'),
+(4, 5, 6, 4, 'Item as described, good seller.'),
 (5, 4, 2, 5, 'Fast shipping, very happy.'),
 (6, 3, 6, 3, 'Okay experience.'),
 (7, 5, 2, 4, 'Product was good, but packaging could be better.'),
