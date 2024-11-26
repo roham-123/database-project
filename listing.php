@@ -8,26 +8,23 @@ if (session_status() == PHP_SESSION_NONE) {
 
 if (isset($_GET['auctionID'])) {
     $item_id = $_GET['auctionID'];
-
-    // Establish database connection
-    // Assuming $conn is defined globally in utilities.php or elsewhere
     global $conn;
 
-    // Fetch item details based on item_id
+    // This block of code fetches the item details based on item_id from the database
     $sql = "SELECT AuctionID, ItemName, Description, StartPrice, ReservePrice, EndDate FROM Auction WHERE AuctionID = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $item_id);
     $stmt->execute();
     $result = $stmt->get_result();
 
-    if ($result->num_rows > 0) {
+    if ($result->num_rows > 0) { //this assigns the database values into variables that are then used in functions below
         $row = $result->fetch_assoc();
         $title = htmlspecialchars($row['ItemName']);
         $description = htmlspecialchars($row['Description']);
         $current_price = $row['StartPrice'];
         $end_time = new DateTime($row['EndDate']);
         
-        // Check if the auction is still active
+        // Checks to see if the auction is still active by using the DateTime function and compares the time remaining based off the desired end time
         $now = new DateTime();
         if ($now < $end_time) {
             $time_to_end = date_diff($now, $end_time);
@@ -44,10 +41,10 @@ if (isset($_GET['auctionID'])) {
     exit;
 }
 
-// Check if the user is watching this item (placeholder for now)
-$watching = false; // This would come from a query if watchlist is implemented
+// Checks if the user is watching this item 
+$watching = false; 
 ?>
-
+<!-- This intialises the main container for the auction page -->
 <div class="container">
 
     <div class="row">
@@ -102,6 +99,8 @@ $watching = false; // This would come from a query if watchlist is implemented
 <?php include_once("footer.php"); ?>
 
 <script>
+
+// This function is responsible for adding the current item to the user's watchlist
 function addToWatchlist() {
     $.ajax('watchlist_funcs.php', {
         type: "POST",
@@ -120,6 +119,7 @@ function addToWatchlist() {
     });
 }
 
+// This function is responsible for removing the current item to the user's watchlist
 function removeFromWatchlist() {
     $.ajax('watchlist_funcs.php', {
         type: "POST",

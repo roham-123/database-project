@@ -6,13 +6,13 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Check if the user is an admin
+// This block of code is responsible for ensuring that only users with the role of 'admin' that can access this page
 if (!isset($_SESSION['Role']) || $_SESSION['Role'] != 'admin') {
     echo "<div class='container mt-5'><p>Access denied. Only admins can view this page.</p></div>";
     exit;
 }
 
-// Function to log admin actions
+// This is the function that is responsible for logging the actions that the admin can make into the AdminAction table
 function logAdminAction($conn, $adminID, $actionType, $actionDescription) {
     $logQuery = "INSERT INTO AdminActions (AdminID, ActionType, ActionDescription) VALUES (?, ?, ?)";
     if ($stmt = $conn->prepare($logQuery)) {
@@ -22,7 +22,7 @@ function logAdminAction($conn, $adminID, $actionType, $actionDescription) {
     }
 }
 
-// Handles the delete auction request
+// This block of code is responsbile for handling how the admin can delete an exisiting auction
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_auction'])) {
     $auctionID = $_POST['delete_auction'];
     $deleteQuery = "DELETE FROM Auction WHERE AuctionID = ?";
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_auction'])) {
         if ($stmt->execute()) {
             echo "<div class='container mt-3 alert alert-success'>Auction deleted successfully.</div>";
 
-            // Logs the admin action using the above function
+            // This sets up the variables that will be passed into the logAdminAction function
             $adminID = $_SESSION['UserID'];
             $actionType = "Delete Auction";
             $actionDescription = "Deleted auction with AuctionID: $auctionID";
@@ -43,14 +43,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_auction'])) {
     }
 }
 
-// handles the blacklisting of users
-if ($_SERVER['REQUEST_METHOD'] == 'POST') { //blacklists them
-    if (isset($_POST['blacklist_user'])) {
+// This block of code is responsbile for handling how the admin can blacklist a user
+if ($_SERVER['REQUEST_METHOD'] == 'POST') { 
+    if (isset($_POST['blacklist_user'])) { // This checks if the 'blacklist_user' action was triggered in the form
         $userID = $_POST['blacklist_user'];
         $query = "UPDATE Users SET blacklisted = 1 WHERE UserID = ?";
         $actionType = "Blacklist User";
         $actionDescription = "Blacklisted user with UserID: $userID";
-    } elseif (isset($_POST['unblacklist_user'])) { //unblacklists them
+    } elseif (isset($_POST['unblacklist_user'])) { // This checks if the 'unblacklist_user' action was triggered in the form
         $userID = $_POST['unblacklist_user'];
         $query = "UPDATE Users SET blacklisted = 0 WHERE UserID = ?";
         $actionType = "Unblacklist User";
@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') { //blacklists them
             $stmt->bind_param("i", $userID);
             if ($stmt->execute()) {
                 echo "<div class='container mt-3 alert alert-success'>$actionDescription successfully.</div>";
-                logAdminAction($conn, $_SESSION['UserID'], $actionType, $actionDescription);
+                logAdminAction($conn, $_SESSION['UserID'], $actionType, $actionDescription); // This calls the function and passes the connection, current user ID, action type, and description variables
             } else {
                 echo "<div class='container mt-3 alert alert-danger'>Error: " . $stmt->error . "</div>";
             }
@@ -73,19 +73,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') { //blacklists them
 
 
 
-// Fetch all auctions
+// This Fetches all the auctions
 $auctionsQuery = "SELECT * FROM Auction";
 $auctionsResult = $conn->query($auctionsQuery);
 
-// Fetch all users
+// This Fetches all the users
 $usersQuery = "SELECT * FROM Users WHERE Role != 'admin'";
 $usersResult = $conn->query($usersQuery);
 
-// Fetch all admin actions
+// This Fetches all the admin actions
 $logsQuery = "SELECT AdminActions.*, Users.Username FROM AdminActions JOIN Users ON AdminActions.AdminID = Users.UserID ORDER BY ActionDate DESC";
 $logsResult = $conn->query($logsQuery);
 ?>
 
+<!-- This block of code is responsible for creating the visuals that the admin will see, here they will see the admin dashboard link -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -97,7 +98,7 @@ $logsResult = $conn->query($logsQuery);
 <body>
 <div class="container mt-5">
     <h1>Admin Dashboard</h1>
-
+<!-- This block of code is responsible for creating the visuals that the admin will see, here they will see the manage auction table -->
     <h2>Manage Auctions</h2>
     <form method="POST" action="">
         <table class="table table-bordered">
@@ -120,7 +121,7 @@ $logsResult = $conn->query($logsQuery);
             <?php } ?>
         </table>
     </form>
-
+<!-- This block of code is responsible for creating the visuals that the admin will see, here they will see the admin manage users table -->
     <h2>Manage Users</h2>
     <table class="table table-bordered">
         <tr>
@@ -156,7 +157,7 @@ $logsResult = $conn->query($logsQuery);
             </tr>
         <?php } ?>
     </table>
-
+<!-- This block of code is responsible for creating the visuals that the admin will see, here they will see the admin action logs -->
     <h2>Admin Action Logs</h2>
     <table class="table table-bordered">
         <tr>

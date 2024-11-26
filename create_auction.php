@@ -4,12 +4,10 @@
     session_start();
 } ?>
 
-
-
 <?php
-// Only allow sellers to access this page
+// This block of code is responsible for ensuring that only users with the role of 'seller' and are logged in that can access this page
 if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSION['Role'] !== 'seller') {
-  echo "Access denied. Only sellers can create auctions.";
+  echo "Access denied. Only sellers can create auctions."; //lets the buyer or admin know that they don't have the correct privilages
   exit();
 }
 ?>
@@ -40,7 +38,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSI
         <div class="form-group row">
           <label for="auctionCategory" class="col-sm-2 col-form-label text-right">Category</label>
           <div class="col-sm-10">
-            <select class="form-control" id="auctionCategory" name="category" required>
+            <select class="form-control" id="auctionCategory" name="category" required> <!-- This creates the dropdown menu where users can select predefinined categories-->
               <option value="Electronics">Electronics</option>
               <option value="Furniture">Furniture</option>
               <option value="Clothing">Clothing</option>
@@ -59,7 +57,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSI
               <div class="input-group-prepend">
                 <span class="input-group-text">£</span>
               </div>
-              <!-- Set minimum value to 1 -->
+              <!-- Set minimum value to 1 so that the users don't penny bid -->
               <input type="number" class="form-control" id="auctionStartPrice" name="startPrice" min="1" required>
             </div>
             <small id="startBidHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> Initial bid amount must be £1 or more.</small>
