@@ -114,12 +114,23 @@ $conn->close();
 function sendNotification($userID, $auctionID, $subject) {
     global $conn;
 
+    // Fetch the user's email and auction name
     $sql = "SELECT Email FROM Users WHERE UserID = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $userID);
     $stmt->execute();
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();
+    $stmt->close();
+
+    $auctionSql = "SELECT ItemName FROM Auction WHERE AuctionID = ?";
+    $auctionStmt = $conn->prepare($auctionSql);
+    $auctionStmt->bind_param("i", $auctionID);
+    $auctionStmt->execute();
+    $auctionResult = $auctionStmt->get_result();
+    $auction = $auctionResult->fetch_assoc();
+    $auctionName = $auction['ItemName'] ?? 'Unknown Auction';
+    $auctionStmt->close();
 
     if ($user) {
         $mail = new PHPMailer(true);
@@ -138,7 +149,9 @@ function sendNotification($userID, $auctionID, $subject) {
             // Email content
             $mail->isHTML(true);
             $mail->Subject = $subject;
-            $mail->Body = 'A new bid has been placed on auction ID: ' . $auctionID . '. Please visit your auction to see the latest bid.';
+            $mail->Body = '
+                <p>A new bid has been placed on the auction: <strong>' . htmlspecialchars($auctionName) . '</strong>.</p>
+                <p><a href="http://localhost/database-project/browse.php" style="color: blue; text-decoration: underline;">Click here</a> to browse all auctions.</p>';
 
             // Send email
             $mail->send();
@@ -146,7 +159,5 @@ function sendNotification($userID, $auctionID, $subject) {
             echo "Error sending email: {$mail->ErrorInfo}";
         }
     }
-
-    $stmt->close();
 }
 ?>
