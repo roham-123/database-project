@@ -148,7 +148,7 @@ if ($result->num_rows === 0) {
         }
         $watchlistStmt->close();
     } else {
-        echo "<p><a href='login.php'>Log in as a buyer</a> to add this auction to your watchlist.</p>";
+        echo "<p><a'login.php'>Log in as a buyer</a> to add this auction to your watchlist.</p>";
     }
 
     echo "</div>"; // Close card-body

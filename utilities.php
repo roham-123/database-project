@@ -75,12 +75,7 @@ $database = "AuctionDB";
 // Create a connection to the MySQL database
 $conn = new mysqli($servername, $username, $password, $database);
 
-// Check if the connection was successful
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-} else {
-    echo "Connected successfully to the database.";
-}
+
 
 // Function to close the database connection
 function closeConnection($conn) {

@@ -118,7 +118,8 @@ INSERT INTO `Category` (`CategoryName`) VALUES
 ('Clothing'),
 ('Books'),
 ('Toys'),
-('Sports');
+('Sports'),
+('Other');
 
 -- Sample data for Auction table
 INSERT INTO `Auction` (`UserID`, `ItemName`, `Description`, `CategoryID`, `ReservePrice`, `StartPrice`, `EndDate`) VALUES
