@@ -4,8 +4,8 @@ if (session_status() == PHP_SESSION_NONE) {
   session_start();
 }
 
+date_default_timezone_set('GMT'); 
 
-// display_time_remaining:
 // Helper function to help figure out what time to display
 function display_time_remaining($interval) {
 

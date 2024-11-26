@@ -4,10 +4,7 @@
     session_start();
 } ?>
 
-<?php
-echo "Role: " . (isset($_SESSION['Role']) ? $_SESSION['Role'] : 'not set') . "<br>";
-echo "Logged in status: " . (isset($_SESSION['logged_in']) ? $_SESSION['logged_in'] : 'not set') . "<br>"; 
-?>
+
 
 <?php
 // Only allow sellers to access this page
