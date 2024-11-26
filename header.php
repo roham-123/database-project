@@ -38,7 +38,7 @@ if (isset($_SESSION['Role']) && $_SESSION['Role'] == 'admin') {
   <ul class="navbar-nav ml-auto">
     <li class="nav-item">
       <?php
-      // Displays the username if logged in, otherwise shows login/register options.
+      # Displays the username if logged in, otherwise shows login/register options.
       if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true) {
           echo '<span class="navbar-text mr-3">Welcome, ' . htmlspecialchars($_SESSION['Username']) . '</span>';
           echo '<a class="nav-link" href="logout.php">Logout</a>';
@@ -58,7 +58,7 @@ if (isset($_SESSION['Role']) && $_SESSION['Role'] == 'admin') {
       <a class="nav-link" href="browse.php">Browse</a>
     </li>
     <?php
-    // Updated to use consistent session variable for role
+    # Updated to use consistent session variable for role
     if (isset($_SESSION['Role']) && $_SESSION['Role'] == 'buyer') {
       echo('
       <li class="nav-item mx-1">

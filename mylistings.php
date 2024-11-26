@@ -14,13 +14,13 @@ if (!isset($_SESSION['UserID']) || $_SESSION['Role'] != 'seller') {
 
 $userID = $_SESSION['UserID'];
 
-// Get the filter option from the URL, defaulting to "active"
+# Get filter option from the URL, defaulting to "active"
 $filter = isset($_GET['filter']) ? $_GET['filter'] : 'active';
 
 echo "<div class='container'>";
 echo "<h2 class='my-3'>My Listings</h2>";
 
-// Dropdown for filtering listings
+//dropdown for filtering listings
 echo "<div class='mb-3'>
         <label for='filter'>Show:</label>
         <select id='filter' class='form-control' style='width: auto; display: inline-block;'
@@ -30,7 +30,7 @@ echo "<div class='mb-3'>
         </select>
       </div>";
 
-// Modify SQL query based on the filter selection
+//modify SQL query based on filter selection
 $sql = "
     SELECT a.AuctionID, a.ItemName, a.Description, a.StartPrice, a.EndDate,
            MAX(b.BidAmount) AS HighestBid, COUNT(b.BidID) AS NumBids
@@ -58,7 +58,7 @@ if ($result && $result->num_rows > 0) {
         echo "<p>Starting Price: £" . number_format($row['StartPrice'], 2) . "</p>";
         echo "<p>Ends: " . htmlspecialchars($row['EndDate']) . "</p>";
         
-        // Display status based on bids and end date
+        //display status based on bids and end date
         if ($isEnded) {
             if ($hasBids) {
                 echo "<p class='text-success'><strong>Sold</strong></p>";

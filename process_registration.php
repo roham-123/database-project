@@ -5,14 +5,14 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Get form data from POST request
+#get  form data from POST request
 $accountType = $_POST['accountType'];
 $email = $_POST['email'];
 $password = $_POST['password'];
 $passwordConfirmation = $_POST['passwordConfirmation'];
 $username = $_POST['username']; // Get the username from the form
 
-// Check if the email is valid
+#Check if the email is valid
 if (!filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_match('/@.+\..+/', $email)) {
     echo "<script>alert('Invalid email address. Please enter a valid email (e.g., example@example.com).'); window.location.href = 'register.php';</script>";
     exit();
@@ -43,7 +43,7 @@ if ($emailCheckResult->num_rows > 0) {
     $stmt = $conn->prepare("INSERT INTO Users (Username, Email, Password, Role) VALUES (?, ?, ?, ?)");
     $stmt->bind_param("ssss", $username, $email, $hashedPassword, $accountType);
 
-    // Execute the query and check if it was successful
+    //execute query and check if it was successful
     if ($stmt->execute()) {
         // Redirect to browse.php with a success message
         echo "<script>alert('Registration successful!'); window.location.href = 'browse.php';</script>";
