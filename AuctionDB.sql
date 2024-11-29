@@ -123,16 +123,16 @@ INSERT INTO `Category` (`CategoryName`) VALUES
 
 -- sample data for Auction table (adding auctions, all images are in 'uploads' folder)
 INSERT INTO `Auction` (`UserID`, `ItemName`, `Description`, `CategoryID`, `ReservePrice`, `StartPrice`, `EndDate`, `Views`, `Image`) VALUES
-(2, 'Laptop', 'A high-performance laptop', 1, 500, 300, '2024-12-01 12:00:00', 15, 'uploads/laptop.jpg'),
-(2, 'Sofa', 'Comfortable 3-seater sofa', 2, 200, 150, '2024-11-20 18:00:00', 20, 'uploads/sofa.jpg'),
-(6, 'Mountain Bike', 'A bike perfect for mountain trails', 6, 300, 150, '2024-11-25 17:00:00', 18, 'uploads/bike.jpg'),
-(6, 'Dining Table', 'Modern wooden dining table', 2, 250, 200, '2024-11-30 16:00:00', 25, 'uploads/dining_table.jpg'),
+(2, 'Laptop', 'A high-performance laptop', 1, 500, 300, '2024-12-04 12:00:00', 15, 'uploads/laptop.jpg'),
+(2, 'Sofa', 'Comfortable 3-seater sofa', 2, 200, 150, '2024-12-20 18:00:00', 20, 'uploads/sofa.jpg'),
+(6, 'Mountain Bike', 'A bike perfect for mountain trails', 6, 300, 150, '2024-12-25 17:00:00', 18, 'uploads/bike.jpg'),
+(6, 'Dining Table', 'Modern wooden dining table', 2, 250, 200, '2024-12-30 16:00:00', 25, 'uploads/dining_table.jpg'),
 (2, 'Smartphone', 'Latest model smartphone', 1, 600, 350, '2024-12-05 14:00:00', 30, 'uploads/smartphone.jpg'),
-(6, 'Novel Set', 'Collection of famous novels', 4, 50, 25, '2024-11-27 20:00:00', 10, 'uploads/novel_set.jpg'),
+(6, 'Novel Set', 'Collection of famous novels', 4, 50, 25, '2024-12-27 20:00:00', 10, 'uploads/novel_set.jpg'),
 (2, 'Gaming Console', 'Play the latest games', 1, 400, 300, '2024-12-03 19:00:00', 22, 'uploads/gaming_console.jpg'),
-(2, 'Office Chair', 'Ergonomic office chair', 2, 150, 100, '2024-11-28 18:00:00', 17, 'uploads/office_chair.jpg'),
-(6, 'Winter Jacket', 'Warm and stylish winter jacket', 3, 80, 50, '2024-11-29 12:00:00', 19, 'uploads/winter_jacket.jpg'),
-(6, 'Tennis Racket', 'High-quality tennis racket', 6, 100, 70, '2024-11-26 15:00:00', 16, 'uploads/tennis.jpg'),
+(2, 'Office Chair', 'Ergonomic office chair', 2, 150, 100, '2024-12-28 18:00:00', 17, 'uploads/office_chair.jpg'),
+(6, 'Winter Jacket', 'Warm and stylish winter jacket', 3, 80, 50, '2024-12-29 12:00:00', 19, 'uploads/winter_jacket.jpg'),
+(6, 'Tennis Racket', 'High-quality tennis racket', 6, 100, 70, '2024-12-26 15:00:00', 16, 'uploads/tennis.jpg'),
 (2, 'Electric Guitar', 'High-quality electric guitar', 1, 300, 200, '2024-12-04 17:00:00', 21, 'uploads/guitar.jpg'),
 (6, 'Office Desk', 'Wooden office desk', 2, 150, 100, '2024-12-02 18:00:00', 23, 'uploads/desk.jpg');
 
